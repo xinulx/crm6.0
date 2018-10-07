@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mine.App.mapper.RoleMapper">
+    <!-- 查询角色信息数 -->
+    <select id="queryRoleListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(1) from sys_role r
+        where 1 = 1
+        <if test="roleName != null and roleName != ''">
+            and r.roleName like concat('%' ,concat( #{roleName}, '%'))
+        </if>
+        <if test="roleId != null and roleId != ''">
+            and r.roleId = #{roleId}
+        </if>
+    </select>
+
+    <!-- 查询角色信息 -->
+    <select id="queryRoleListPagenation" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select o.*
+        from sys_role o
+        where 1 = 1
+        <if test="roleName != null and roleName != ''">
+            and (o.roleName like concat('%' ,concat( #{roleName}, '%'))
+            or o.roleId = #{roleName})
+        </if>
+        order by o.rid desc limit #{startNum},#{pageSize}
+    </select>
+
+    <insert id="addRole" parameterType="map">
+        INSERT INTO sys_role
+        (ROLEID, ROLENAME, ROLELV, VFLAG)
+        VALUES (
+            #{roleId}, #{roleName}, #{roleLv}, #{roleFlag}
+        )
+    </insert>
+
+    <select id="qryRoleInfoById" parameterType="map" resultType="java.util.HashMap">
+        select * from sys_role where rid = #{rid}
+    </select>
+
+    <select id="qryRoleByRoleCode" resultType="java.lang.Integer" parameterType="map">
+        select count(1) from sys_role where ROLEID = #{roleCode}
+    </select>
+
+    <update id="editRole" parameterType="map">
+        update sys_role
+        set rolename = #{roleName},
+            rolelv = #{roleLv},
+            vflag = #{roleFlag}
+        where rid = #{rid}
+    </update>
+
+    <select id="qryRoleByIdOfEff" parameterType="map" resultType="java.lang.Integer">
+        select count(1) from sys_role where RID =#{rid} and VFLAG = '0'
+    </select>
+
+    <delete id="delRoleById" parameterType="map">
+        delete from sys_role where rid = #{rid}
+    </delete>
+
+    <!-- 每个人只有一种角色 -->
+    <select id="qryUserOfNoRole" resultType="java.util.HashMap" parameterType="map">
+        SELECT USERID,USERNAME FROM sys_user WHERE USERID NOT IN (
+          SELECT USERID FROM sys_user_rel
+        )
+        <if test="userKey != null and userKey != ''">
+            and (USERID = #{userKey} or USERNAME LIKE CONCAT('%',CONCAT(#{userKey},'%')))
+        </if>
+    </select>
+
+    <insert id="saveUserRoleInfo" parameterType="map">
+        INSERT INTO sys_user_rel(userId,roleId,orgId)
+        VALUES (#{userId},#{roleId},#{orgId})
+    </insert>
+
+    <select id="qryRoleInfoByOrgId" parameterType="map" resultType="java.util.HashMap">
+        select r1.RID,
+        (select USERNAME from SYS_USER where USERID = r2.userId) USERNAME,
+          r1.ROLEID,
+          r2.userId,
+          r2.orgId,
+          r1.ROLENAME,
+          r1.ROLELV,
+          (select ORGNAME from sys_org where orgId = r2.orgId) ORGNAME,
+        <![CDATA[
+        concat('<a href="javascript:changeOrg();" style="color:green;">已拥有</a>&nbsp;|&nbsp;' ,
+         '<a href="javascript:deleteGroupRole();">删除</a>') OP_CODE
+        ]]>
+        from sys_role r1,sys_user_rel r2
+        where r1.ROLEID = r2.roleId
+        <if test="userId != null and userId != ''">
+          and r2.userId = #{userId}
+        </if>
+    </select>
+
+    <select id="qryRoleInfoByUserId" parameterType="string" resultType="java.util.HashMap">
+        select b.roleCode,a.ROLEID,a.ROLENAME,b.USERID from sys_role a,sys_user_rel b
+        where a.ROLEID = b.roleId and b.userId = #{userId}
+    </select>
+
+    <delete id="deleteGroupRoleById" parameterType="map">
+        delete from sys_user_rel where userId = #{userId} and roleId = #{ROLEID} and orgId = #{orgId}
+    </delete>
+
+    <update id="updateRoleOrgId" parameterType="map">
+        update sys_user_rel set orgId = #{NEW_ORGID} where userId = #{userId} and roleId = #{ROLEID} and orgId = #{orgId}
+    </update>
+
+    <select id="queryAllRole" parameterType="map" resultType="java.util.HashMap">
+        select rid,roleid,rolename as text,rolelv,vflag from sys_role
+    </select>
+
+    <select id="queryAllRoleUser" parameterType="map" resultType="java.util.HashMap">
+        select r.roleid,u.username as text,u.userid,u.orgid from sys_role r,sys_user u,sys_user_rel a
+        where r.ROLEID = a.roleId and a.userId = u.USERID and r.roleid = #{roleId}
+    </select>
+</mapper>

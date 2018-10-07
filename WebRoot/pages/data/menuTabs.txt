@@ -1,0 +1,4 @@
+[
+	{title: '基本信息', url: '#', refreshOnClick: true},
+	{title: '包含菜单', url: '#', refreshOnClick: true}
+]

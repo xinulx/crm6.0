@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+	<!-- 请求分发 -->
+	<!--<bean id="simpleUrlHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			&lt;!&ndash; 多渠道配置 &ndash;&gt;
+			<props>
+				<prop key="common.shtml">sampleAction</prop>
+				<prop key="loginAction.shtml">loginAction</prop>
+				<prop key="systemAction.shtml">commonAction</prop>
+				<prop key="systemAction.aa">commonAction</prop>
+				<prop key="empAction.shtml">empAction</prop>
+				<prop key="orgAction.shtml">orgAction</prop>
+				<prop key="menuAction.shtml">menuAction</prop>
+			</props>
+		</property>
+	</bean>-->
+
+	<!-- 改造的 simpleUrlHandlerMapping -->
+	<util:properties id="mappingsProps" location="classpath:/AppConfig/controller.properties"/>
+	<bean id="simpleUrlHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings" ref="mappingsProps" />
+	</bean>
+
+	<!-- 请求方法分派 -->
+	<bean id="paraMethodResolver" class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+	   <property name="paramName" value="method"/>
+    </bean>
+
+    <!-- 使用实例 -->
+	<bean id="sampleAction" class="com.mine.App.controller.SampleAction">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+   	     <!--viewName属性将依赖注入sampleMultiActionController类：默认控制器视图名-->
+	 	<property name="viewName" value="common" />
+   	</bean>
+</beans>

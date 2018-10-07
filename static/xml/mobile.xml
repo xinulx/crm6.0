@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="GBK" standalone="no" ?>
+<Root>
+    <COMMON_INFO>
+        <TRACE_ID type="string"></TRACE_ID>
+        <CALL_ID type="string"></CALL_ID>
+        <PROVINCE_GROUP type="string">10017</PROVINCE_GROUP>
+        <SESSION_ID type="string">KQhpZBQLvTPJ916v0brdMqpSCfTpN48lV1zq5Spfm1Wy2hC1Mwhn!1075811303!1505820712242
+        </SESSION_ID>
+        <SER_NAME type="string"></SER_NAME>
+        <ROUND_AUDIT type="string">Y</ROUND_AUDIT>
+        <DEST_IP type="string">152.55.249.125</DEST_IP>
+        <DEST_PORT type="string">11001</DEST_PORT>
+        <SRC_PORT type="string">63142</SRC_PORT>
+        <APP_NAME type="string">NGBOSS</APP_NAME>
+        <APP_ID type="string">2000</APP_ID>
+        <FROM_SYS type="string">BOSS</FROM_SYS>
+        <BAK2 type="string"></BAK2>
+    </COMMON_INFO>
+    <REQUEST_INFO>
+        <BUSIINFO_LIST>
+            <ORDER_INFO>
+                <BUSI_TYPE_ID type="long">2</BUSI_TYPE_ID>
+                <ORDER_TYPE_ID type="int">2</ORDER_TYPE_ID>
+                <IS_PARALLEL type="string">N</IS_PARALLEL>
+            </ORDER_INFO>
+            <BUSIINFO>
+                <BUSI_MODEL>
+                    <SALER_ID type="string">100021</SALER_ID>
+                    <MARKET_MONEY type="string">500.00</MARKET_MONEY>
+                    <PAY_TYPE_ID type="string">0</PAY_TYPE_ID>
+                    <IMEI_NO type="string">352343056101352</IMEI_NO>
+                    <RECEIVE_NAME type="string">＊＊瑞</RECEIVE_NAME>
+                    <RECEIVE_PHONE type="string">13855070695</RECEIVE_PHONE>
+                    <RES_COST_PRICE type="long">90000.0</RES_COST_PRICE>
+                    <RESOURCE_MODEL type="string">L</RESOURCE_MODEL>
+                    <RESOURCE_CODE type="string">C0129989</RESOURCE_CODE>
+                    <RESOURCE_TYPE type="string">Z</RESOURCE_TYPE>
+                    <RECEIVE_FLAG type="string">Y</RECEIVE_FLAG>
+                    <PHONE_TYPE_NAME type="string">I9308</PHONE_TYPE_NAME>
+                    <BRAND_CODE_NAME type="string">宇龙酷派</BRAND_CODE_NAME>
+                    <RES_PRICE type="string">900</RES_PRICE>
+                    <MACH_BUY_TYPE type="string">0</MACH_BUY_TYPE>
+                    <MACH_IMPORT_TRADER type="string">S010</MACH_IMPORT_TRADER>
+                    <SETTLE_PRICE type="string">414000</SETTLE_PRICE>
+                    <IS_ACTLIB type="string">0</IS_ACTLIB>
+                    <RESOURCE_USE type="string">2</RESOURCE_USE>
+                    <SOURCEINFO type="string">A</SOURCEINFO>
+                    <REALAUTH type="string">2</REALAUTH>
+                </BUSI_MODEL>
+                <ORDER_LINE_FEELIST>
+                    <ORDER_LINE_FEE>
+                        <RECEIVE_FEE_TYPE type="string">1</RECEIVE_FEE_TYPE>
+                        <PAY_TYPE type="string">0</PAY_TYPE>
+                        <FEE_TYPE type="string">1</FEE_TYPE>
+                        <FEE_CODE type="string">185</FEE_CODE>
+                        <FEE_CODE_SEQ type="long">0</FEE_CODE_SEQ>
+                        <BUSI_SHOULD type="double">50000.0</BUSI_SHOULD>
+                        <SHOULD_PAY type="double">50000.0</SHOULD_PAY>
+                        <IS_PRINT type="string">Y</IS_PRINT>
+                        <POWER_FAV type="double">0.0</POWER_FAV>
+                        <PROD_FAV_RULE type="int">0</PROD_FAV_RULE>
+                        <PROD_FAV type="double">0.0</PROD_FAV>
+                        <FACTOR_ONE type="string"></FACTOR_ONE>
+                        <FACTOR_TWO type="string"></FACTOR_TWO>
+                        <POWER_FAV_RULE type="int">0</POWER_FAV_RULE>
+                    </ORDER_LINE_FEE>
+                    <ORDER_LINE_FEE>
+                        <RECEIVE_FEE_TYPE type="string">G</RECEIVE_FEE_TYPE>
+                        <PAY_TYPE type="string">P1</PAY_TYPE>
+                        <FEE_TYPE type="string">1</FEE_TYPE>
+                        <FEE_CODE type="string">805</FEE_CODE>
+                        <FEE_CODE_SEQ type="long">0</FEE_CODE_SEQ>
+                        <BUSI_SHOULD type="double">40000.0</BUSI_SHOULD>
+                        <SHOULD_PAY type="double">40000.0</SHOULD_PAY>
+                        <IS_PRINT type="string">Y</IS_PRINT>
+                        <POWER_FAV type="double">0.0</POWER_FAV>
+                        <PROD_FAV_RULE type="int">0</PROD_FAV_RULE>
+                        <PROD_FAV type="double">0.0</PROD_FAV>
+                        <FACTOR_ONE type="string"></FACTOR_ONE>
+                        <FACTOR_TWO type="string"></FACTOR_TWO>
+                        <POWER_FAV_RULE type="int">0</POWER_FAV_RULE>
+                    </ORDER_LINE_FEE>
+                </ORDER_LINE_FEELIST>
+                <SERVICE_OFFER_ID type="long">520302524</SERVICE_OFFER_ID>
+                <DOC_SEQ type="long">1</DOC_SEQ>
+                <SERIAL_NO type="long">1</SERIAL_NO>
+                <CUST_ID_TYPE type="int">4</CUST_ID_TYPE>
+            </BUSIINFO>
+        </BUSIINFO_LIST>
+        <OPR_INFO>
+            <REGION_ID type="int">22</REGION_ID>
+            <CHANNEL_TYPE type="string">21J</CHANNEL_TYPE>
+            <LOGIN_NO type="string">M0AAA0095</LOGIN_NO>
+            <LOGIN_PWD type="string">fb0bdec823cf4cdb</LOGIN_PWD>
+            <IP_ADDRESS type="string">10.243.120.95</IP_ADDRESS>
+            <GROUP_ID type="string">122000464</GROUP_ID>
+            <OP_CODE type="string">4975</OP_CODE>
+            <CONTACT_ID type="string">1120170916348507380000000</CONTACT_ID>
+            <AUTHEN_CODE type="string">4</AUTHEN_CODE>
+            <AUTHEN_NAME type="string">服务密码</AUTHEN_NAME>
+            <OP_NOTE type="string">4975终端裸机销售</OP_NOTE>
+            <CUST_ID type="long">22010000262656</CUST_ID>
+            <SERVICE_NO type="string">13855070695</SERVICE_NO>
+            <ID_NO type="long">22070844303006</ID_NO>
+            <SYS_NOTE type="string">4975终端裸机销售</SYS_NOTE>
+            <OP_TIME type="string">20170919194016</OP_TIME>
+            <CONTRACT_NO type="long">-1</CONTRACT_NO>
+            <CUST_ID_TYPE type="int">4</CUST_ID_TYPE>
+            <CONTACT_ID type="string">1120170916348507380000000</CONTACT_ID>
+            <SALE_LOGIN_NO type="string">100021</SALE_LOGIN_NO>
+            <SALE_LOGIN_NAME type="string">测试经销商NO4</SALE_LOGIN_NAME>
+            <DEALER_LOGIN_NO type="string">100021</DEALER_LOGIN_NO>
+            <DEALER_LOGIN_NAME type="string">测试经销商NO4</DEALER_LOGIN_NAME>
+            <BAK3 type="string"></BAK3>
+            <OP_NOTE type="string">郭德纲的</OP_NOTE>
+        </OPR_INFO>
+    </REQUEST_INFO>
+    <MSG_TYPE>
+        <BATCH_TYPE type="int">1</BATCH_TYPE>
+        <TEMPLATE_ID type="long">1</TEMPLATE_ID>
+        <AUTO_CONFIRM type="string">N</AUTO_CONFIRM>
+    </MSG_TYPE>
+</Root>

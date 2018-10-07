@@ -1,0 +1,8 @@
+【系统变更日志】
+【新增】--大包：毕业设计型，com.design.yyq,分5个子包，sqlmap为方便起见仍使用com.mine.App.sqlMap包，即都sqlmap文件放在该包下
+【修改】--web.xml，配置欢迎页，即访问项目路径时默认加载页，需要手动配置；
+		1、使用特殊路径：webRoot/xxx.*，配置格式
+			<welcome-file>login.html</welcome-file>
+		2、使用特殊路径：webRoot/**/xxx.*，配置格式
+			<welcome-file>**/login.html</welcome-file>
+【新增】--页面新文件夹

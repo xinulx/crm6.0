@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mine.App.mapper.EmpMapper">
+	<!-- 员工信息分页查询 -->
+	<select id="getEmpInfoForList" parameterType="map" resultType="java.util.HashMap">
+		SELECT U.EMPNO,
+			   U.EMPNAME,
+			   U.AGE,
+			   U.GENDER,
+			   U.HIREDATE,
+			   U.DEPTNO,
+			   D.DEPTNAME,
+			   U.ORGID,
+			   O.ORGNAME,
+			   U.BIRTHDATE,
+			   U.CREATETIME,
+			   U.SALARY,
+			   U.EMPDESC,
+			   U.VFLAG FROM sys_emp U
+			   LEFT JOIN sys_dept D ON D.DEPTNO=U.DEPTNO AND D.VFLAG='0'
+			   LEFT JOIN sys_org O ON O.ORGID=U.ORGID AND O.VFLAG='0'
+			   WHERE 1=1
+		<if test="deptNo!=null">AND U.DEPTNO=#{deptNo}</if>
+		<if test="empId!=null">AND (U.EMPNO=#{empId} OR U.EMPNAME LIKE '%${empId}%')</if>
+		<if test="hireDate!=null">AND U.HIREDATE=#{hireDate}</if>
+		<if test="qryType !=null and qryType == 'selectUser'">
+			AND U.EMPNO NOT IN (SELECT SU.USERID FROM SYS_USER SU)
+		</if>
+		<if test="sortOrder=='asc' or sortOrder=='ASC'">ORDER BY U.CREATETIME ASC</if>
+		<if test="sortOrder=='desc' or sortOrder=='DESC'">ORDER BY U.CREATETIME DESC</if>
+		<if test="sortOrder==null and sortField==null">ORDER BY U.CREATETIME DESC</if>
+	    LIMIT #{index},#{pageSize}
+	</select>
+	<!-- 查询员工总数 -->
+	<select id="getEmpInfoForListCnt" parameterType="map" resultType="java.lang.Integer">
+		SELECT COUNT(1) FROM sys_emp U
+		LEFT JOIN sys_dept D ON D.DEPTNO=U.DEPTNO AND D.VFLAG='0'
+		LEFT JOIN sys_org O ON O.ORGID=U.ORGID AND O.VFLAG='0'
+		WHERE 1=1
+		<if test="deptNo!=null">AND U.DEPTNO=#{deptNo}</if>
+		<if test="empId!=null">AND (U.EMPNO=#{empId} OR U.EMPNAME LIKE '%${empId}%')</if>
+		<if test="hireDate!=null">AND U.HIREDATE=#{hireDate}</if>
+		<if test="qryType !=null and qryType == 'selectUser'">
+			and u.empno not in (
+			select su.userId from SYS_USER su
+			)
+		</if>
+	</select>
+	
+	<!-- 获取随机员工串码 -->
+	<select id="getEmpCode" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT NEXTVAL(#{userId}) FROM DUAL 
+	</select>
+	
+	<!-- 自动生成员工编码 -->
+	<select id="getEmpCodeNbr" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT NEXTVAL(#{empNo}) FROM DUAL 
+	</select>
+	
+	<!-- 查询下拉菜单 -->
+	<select id="querySelectOptForList" parameterType="java.util.Map" resultType="java.util.HashMap">
+		SELECT 
+			<if test="objType=='T01'">T.ORGID code,</if>
+			<if test="objType=='T02'">T.DEPTNO code,</if>
+			<if test="colunmName=='ORGID'">T.ORGNAME name</if>
+			<if test="colunmName=='DEPTNO'">T.DEPTNAME name</if>
+		FROM
+			<if test="tableName=='ORGINFO'">sys_org</if>
+			<if test="tableName=='DIC_DEPT'">sys_dept</if>
+		 T WHERE T.VFLAG='0'
+		 	<if test="params!=''">AND T.ORGID=#{params}</if>
+	</select>
+	
+	<!-- 保存新增用户或员工 -->
+	<select id="saveNewUserProf" parameterType="java.util.Map">
+		INSERT INTO sys_emp (
+			AGE, 
+			BIRTHDATE, 
+			GENDER, 
+			EMPNO, 
+			EMPNAME, 
+			ORGID, 
+			DEPTNO, 
+			HIREDATE, 
+			SALARY, 
+			CREATETIME, 
+			UPDATETIME, 
+			VFLAG, 
+			EMPCODE, 
+			EMPDESC)
+		VALUES (
+			#{age}, 
+			#{birthDate}, 
+			#{gender}, 
+			#{empNo}, 
+			#{empName}, 
+			#{orgId}, 
+			#{deptNo}, 
+			#{hireDate}, 
+			#{salary}, 
+			CURRENT_TIMESTAMP, 
+			CURRENT_TIMESTAMP, 
+			'0', 
+			 #{empCode}, 
+			#{empDesc})
+	</select>
+	<update id="saveUpdateUserProf" parameterType="java.util.Map">
+		update sys_emp set
+			age = #{age}, 
+			birthdate = #{birthDate}, 
+			gender = #{gender}, 
+			empname = #{empName}, 
+			orgid = #{orgId}, 
+			deptno = #{deptNo}, 
+			hiredate = #{hireDate}, 
+			salary = #{salary}, 
+			updatetime = CURRENT_TIMESTAMP, 
+			empdesc = #{empDesc},
+			empcode = #{empCode}
+		where empno = #{empNo}
+	</update>
+	<!-- 删除记录 -->
+	<delete id="deleteEmpRowsForOne" parameterType="java.lang.String">
+		<!-- 注意此处经验证不支持表别名的使用，为啥呢？ -->
+		DELETE FROM sys_emp WHERE EMPNO=#{empNo} AND VFLAG='0'
+	</delete>
+	
+	<!-- excel导出查询 -->
+	<select id="queryEmpInfotoExcel" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT U.EMPNO,
+			   U.EMPNAME,
+			   U.AGE,
+			   U.GENDER,
+			   U.HIREDATE,
+			   U.DEPTNO,
+			   D.DEPTNAME,
+			   U.ORGID,
+			   O.ORGNAME,
+			   U.BIRTHDATE,
+			   U.CREATETIME,
+			   U.SALARY,
+			   U.EMPDESC,
+			   U.VFLAG 
+		FROM sys_emp U
+			   LEFT JOIN sys_dept D ON D.DEPTNO=U.DEPTNO AND D.VFLAG='0'
+			   LEFT JOIN sys_org O ON O.ORGID=U.ORGID AND O.VFLAG='0'
+			   WHERE U.EMPNO IN (${params})
+	</select>
+</mapper>

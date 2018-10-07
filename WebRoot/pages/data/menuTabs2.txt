@@ -1,0 +1,4 @@
+﻿[
+    { "id": "tabs1", "text": "基本信息" ,tag:"tabs1"},
+    { "id": "tabs2", "text": "包含菜单" ,tag:"tabs2"}
+]

@@ -1,0 +1,215 @@
+/*****************************************
+	Project：CRM
+	Email：wangshibao
+	Last change：2016-08-01
+	Primary use：crm
+*****************************************/
+/*base*/
+* { margin:0; padding:0; font-size: 12px;  }
+body { font-family: '宋体'; line-height: 20px; word-break: break-all; margin: 0; padding: 0;  background-color:#fff; color:#666; background:url(../images/searchBg.gif) repeat-x bottom fixed; font-size: 12px;}
+div, form, img, ul, ol, li, dl, dt, dd { border: 0 none; margin: 0; padding: 0; }
+h1, h2, h3, h4, h5, h6 { font-size: 12px; font-weight: normal; margin: 0; padding: 0; }
+img {border: none;text-align: center;}
+ul, li { list-style-type: none; margin: 0; padding: 0; }
+textarea{width:88%; border:1px solid #ccc;}
+.mTop { margin-top:10px; }
+.pd5{ padding:5px;}
+.pd10{ padding:10px;}
+.mg10{margin:10px;}
+.borderBottom{border-bottom:1px solid #ccc;}
+a {color: #0030ff; }
+a:hover { color: #0030ff; text-decoration: underline; }
+.input150 { width:150px; }
+.input200 { width:200px; }
+.input300 { width:300px; }
+/*-----------------------操作栏START----------------------*/
+.tab_tool{width: 100%;height:30px;line-height: 30px;background: url(../images/RightBg.gif) repeat-x;}
+.tab_tool .title{width: 30%;color:blue;font-weight: bold;float: left;}
+.tab_tool .title img{position: relative;bottom: 2px;}
+.tab_tool .title a{position: relative;bottom: 5px; text-decoration: none;}
+.tab_tool button{float: right;margin: 0 0 0 5px;}
+/*-----------------------操作栏END----------------------*/
+/* select{width:71%; height:25px;line-height:25px; border:1px solid #ccc;  background:url(../images/txtBack.gif);box-sizing:border-box;}
+input{ width:70%; border:1px solid #ccc; height:23px; line-height:23px; } */
+select{width:202px; height:25px;line-height:25px; border:1px solid #ccc;  background:url(../images/txtBack.gif);box-sizing:border-box;}
+input{ width:200px; border:1px solid #ccc; height:23px; line-height:23px; }
+：radio{width: auto;}
+
+/* 下拉菜单 */
+.select-main{
+	background: url(../images/select-arrow.png) no-repeat;
+	background-position: right;
+}
+li{list-style: none;}
+.sewv{position: relative;width: 100%;}
+.sewvtop{width: 200px;height:23px;border: 1px #D9D9D9 solid;cursor:pointer;}
+.sewvtop:hover,input:hover,select:hover{border:1px #57c5f7 solid;}
+.sewvbm{width: 200px;position: absolute;left: 0;top: 26px;display: none;border: 1px #D9D9D9 solid;background: #fff;max-height: 150px;overflow-y: auto;overflow-x:hidden; }
+.sewvbm>li{cursor:pointer;width:196px;height:20px;line-height:20px;font-size: 12px;color: #666;padding-left:5px;}
+.sewvbm>li:hover{background: #57c5f7;color: #fff;}
+.sewvtop>span{display: inline-block;width:168px;height:23px;white-space:pre;text-overflow:ellipsis;overflow: hidden;font-size: 12px;line-height:22px;color: #666;padding:0 5px;vertical-align: middle;}
+.sewvtop>em{display: inline-block;width: 20px;height: 20px;vertical-align: middle;}
+.lbaxztop{animation: rotatete 0.3s linear forwards;}
+.lbaxztop2{animation: rotatete2 0.3s linear forwards;}
+@keyframes rotatete{
+	from{transform: rotate(0deg);}
+	to{transform: rotate(180deg);}
+}
+
+@keyframes rotatete{
+	from{transform: rotate(0deg);}
+	to{transform: rotate(180deg);}
+}
+
+@-moz-keyframes rotatete2{
+	from{transform: rotate(180deg);}
+	to{transform: rotate(0deg);}
+}
+@keyframes rotatete2{
+	from{transform: rotate(180deg);}
+	to{transform: rotate(0deg);}
+}
+
+.date{ background:url(../images/date.png) no-repeat 0 50%; width:18px; height:18px; vertical-align:middle; }
+.clear{clear:both; height:0px; width:100%; font-size:1px; line-height:0px; visibility:hidden; overflow:hidden;}
+.btn-expand { background: url(../images/btn.gif) no-repeat 0px -350px; border: none; width: 100px; height: 25px; cursor: pointer; border: none; padding-left: 20px; padding-top: 3px; }
+.btn-shou { background: url(../images/btn.gif) no-repeat 0px -300px; border: none; width: 100px; height: 25px; cursor:pointer; border: none; padding-left: 20px; padding-top: 3px; }
+.panel_content {margin:0 auto;border-bottom:none;}
+.panel_end { margin-left:auto; margin-right:auto;  height:10px; overflow:hidden;  }
+.addContentTable { margin-top:6px; width:100%; background:#99C0E3; margin-left:auto; margin-right:auto; margin-bottom:5px; padding-top:10px;}
+.addContentButton { width:100%; margin-left:auto; margin-right:auto; text-align:center; height:30px; }
+.mustFill { color:#F00;}
+.pageFoot{
+	background: #F6F6F6;
+	border-bottom: 1px solid #ccc;
+	padding:2px 10px;
+	text-align:right;
+}
+/* ----------------------------------------------------search页面样式------------------------------------------------------------ */
+.search_panel { margin-left:auto; margin-right:auto; width:100%; background-image:url(../images/search_bg.jpg); background-repeat:no-repeat; background-color:#F4FAFF; border:#99C0E3 solid 1px; border-bottom:none;; }
+.search_panelOneRow { margin-left:auto; margin-right:auto;  background-image:url(../images/searchOneRow_bg.jpg); background-repeat:no-repeat; background-color:#F4FAFF;  color:#00659c}
+.search_panelOneRow-top { margin-left:auto; margin-right:auto;  background:#F4FAFF url(../images/searchOneRow_bg.jpg) no-repeat top left; height:30px;}
+.search_HideRow { display:none; }
+.searchContent { width:100px; height:30px; text-align:right; vertical-align:middle; }
+.searchValues { width:180px; }
+.searchButton { text-align:center; height:35px; }
+.searchBg{ background:url(../images/searchBg.gif) repeat-x;}
+/* ----------------------------------------------------grid页面样式---------------------------------------------------------------*/
+.gridView {margin-left:auto;margin-right:auto;width:100%; background: #FFF;}
+.gridView .button{border:  #ccc solid 1px;background:url(../images/tab_button.jpg) repeat-x; color:#666 ; height:20px; line-height:18px;}
+.gridView_icon { background:url(../images/grid_icon.jpg) no-repeat; }
+.gridView td { line-height:22px; padding:1px 5px; border-bottom:1px solid #9DC9E6;border-right:1px solid #9DC9E6;}
+.gridView thead { background:url(../images/tab-1-Bg.gif) repeat-x;}
+.gridView thead tr th{ font-weight:normal;border-bottom:1px solid #9DC9E6;border-right:1px solid #9DC9E6;border-top:1px solid #9DC9E6; font-size:12px; text-align:left; font-weight:bold; color:#666 ; line-height:24px; white-space:nowrap;}
+.gridView tbody { background:#fff; }
+.gridView td:FIRST-CHILD,.gridView th:FIRST-CHILD{border-left:1px solid #9DC9E6;}
+.gridView tbody tr:hover{background:#F6F6F6;}
+.gridView_number { background:#F6F6F6; width:20px; text-align:center; border-right:1px solid  #E7E7E7; }
+.gridView th { background:url(../images/tab-1-Bg.gif)  repeat-x; height:20px; border-bottom:1px solid #ccc; text-align:left;padding-left:5px;}
+/* -----------------------------表单样式------------------------------------------------------------------------------------------*/
+.button {background:url(../images/button.gif) repeat-x; line-height:22px; border:none; color:#FFF; width:75px; height:24px;cursor:pointer; }
+.button2{border:#ccc solid 1px;background:url(../images/tab_button.jpg) repeat-x; color:#666 ; width:75px;height:24px; line-height:22px;}
+.button3 {background:url(../images/button_large.gif) repeat-x; line-height:22px; border:none; color:#FFF; width:100px; height:24px;cursor:pointer; }
+.button4 {background:url(../images/button_large.gif) repeat-x; line-height:22px; border:none; color:#FFF; width:75px; height:24px;cursor:pointer; }
+.btn1, .btn2, .btn3, .btn4{ background: url(../images/btn.png) no-repeat; height: 24px; line-height:20px;padding-top: 2px; margin-right: 6px; border: none; cursor: pointer; }
+.btn5 ,.btn6, .btn7, .btn8{ background: url(../images/btn.png) no-repeat; cursor: pointer; border: none; color: #FFF; line-height:10px;padding-top: 2px; height: 20px; text-align: center; }
+.btn1 { background-position: 0 0; width: 60px;}
+.btn2 { background-position: 0 -50px; width: 80px; }
+.btn3 { background-position: 0 -100px; width: 120px; }
+.btn4 { background-position: 0 -150px; width: 88px; }
+.btn5 { background-position: 0 -200px; padding: 2px 3px; height: 20px; border: 1px solid #15a4d0;}
+.btn6 { background-position: 0 -250px; text-align: center; width: 41px; border: none; color: #404040; padding-top: 2px;}
+.btn7 { background-position: 0 -280px; width: 41px; line-height: 10px;}
+.btn8 { background-position: 0 -320px; width: 60px; color: #15a4d0; padding-top: 2px;}
+.img-search { background-position: -150px 0; width: 36px; height: 34px; margin: 10px; }
+.img-go { background-position: -50px -30px; width: 25px; height: 22px; border: none; cursor: pointer; }
+/*---------------------------------------左右表-----------------------------------------------------------------------------*/
+.tab-l {width:100%;margin:0; autotext-align: center;font-size: 12px;color:#000;}
+.tab-l tbody tr td { text-align: left; padding: 2px; line-height: 20px;  }
+.tab-l tbody tr th { white-space: nowrap; text-align: right; font-weight: normal; padding: 2px; color:#666}
+.tab-l thead tr td { text-align: center; border: 1px solid #edf2f9; line-height: 20px; font-weight: normal; padding: 2px; }
+.tab-l thead tr th { text-align: center; background: #d6e6fd repeat-x top left; border-top: #FFF solid 1px; border-left: #FFF solid 1px; line-height: 20px; font-weight: normal; padding: 2px;  border-bottom: 1px solid #89a9d5; border-right: 1px solid #89a9d5; }
+/* --------------------------------------------Tabs 1--------------------------- */
+.tabs1 ul .now a { float: left; background: url(../images/tabright1.gif) no-repeat right top; margin: 0; padding: 0 13px 0 0 ; text-decoration: none; height:30px; line-height:30px;}
+.tabs1 ul .now a span{ float: left; display: block; background: url(../images/tabright1.gif) no-repeat left top; padding: 0 0 0 13px; color: #F60; margin:0; font-weight:bold;}
+.tabs1 { float:left; width:100%; background: url(../images/tab-1-Bg.gif); line-height:normal; }
+.tabs1 ul { margin-left:10px; padding:0 10px 0 0; list-style:none; }
+.tabs1 li { display:inline; margin:0; padding:0; }
+.tabs1 a { float:left; background:url(../images/tabright1.gif) no-repeat right bottom; padding: 0 10px 0 0 ; text-decoration: none; height:30px; line-height:30px; }
+.tabs1 a span { float:left; display:block; background:url(../images/tabright1.gif) no-repeat left bottom; margin-right:5px; padding: 0 0 0 13px; color:#333; }
+.tabs1 a:hover span { color:#627EB7; }
+/* --------------------------------------------Tabs 2不带数字--------------------------- */
+.tabs2 ul .now a { float: left; background: url(../images/tabright2.gif) no-repeat right top; margin: 0; padding: 0 13px 0 0 ; text-decoration: none; height:30px; line-height:30px;}
+.tabs2 ul .now a span{ float: left; display: block; background: url(../images/tabright2.gif) no-repeat left top; padding: 0 0 0 13px; color: #F60; margin:0; font-weight:bold;}
+.tabs2 { float:left; width:100%; background: url(../images/tab-1-Bg.gif); line-height:normal; }
+.tabs2 ul { margin-left:10px; padding:0 10px 0 0; list-style:none; }
+.tabs2 li { display:inline; margin:0; padding:0; }
+.tabs2 a { float:left; background:url(../images/tabright2.gif) no-repeat right bottom; padding: 0 10px 0 0 ; text-decoration: none; height:30px; line-height:30px; }
+.tabs2 a span { float:left; display:block; background:url(../images/tabright2.gif) no-repeat left bottom; margin-right:10px; padding: 0 0 0 13px; color:#333; }
+.tabs2 a:hover span { color:#627EB7; }
+/* ------------------ jquery validate ---------------------------------------------------------------------------------*/
+form label.error { margin-left: 10px; width: auto; display: inline; }
+form label.error, label.error {color: red; font-style: inherit; }
+input:focus { border: 1px dotted black; }
+input.error { border: 1px dotted red; }
+input[type=radio]{width: auto;height: auto;border: none;}
+
+/* ---------选择元素块-------*/
+.element{
+	cursor: pointer;
+	display: inline-block;
+	height: 30px;
+	line-height: 30px;
+	font-size: 14px;
+	min-width: 70px;
+	padding: 0 10px;
+	text-align: center;
+	border: 1px solid #ccc;
+	margin: 0 10px 10px 0;
+	-webkit-user-select: none;
+	user-select: none;
+    background: #FFF;
+}
+.element-radio{
+    cursor: pointer;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+	width: 100px;
+    padding: 0 0;
+    text-align: center;
+    border: 1px solid #ccc;
+    margin: 0 -3px 0 0;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.element:hover,.element-radio:hover{
+    border-color: #2A97DD;
+}
+.checked{
+	background: #fff url("../images/icon-checked.gif") no-repeat right bottom;
+	border-color: #2A97DD;
+}
+.on-checked{
+    border-color: #2A97DD;
+    background: #2A97DD;
+    color: #FFF;
+}
+.titleHead{
+    display: inline-block;
+    width: 7px;
+    height: 20px;
+    background-color: #31adfc;
+    vertical-align: middle;
+    margin-top: -6px;
+    margin-right: 5px;
+}
+.menuList{
+	float: left;
+	border:1px solid #C9C9C9;
+	width: 500px;
+	height: 500px;
+	padding-right: 5px;
+	background: #FFF;
+}

@@ -1,0 +1,1207 @@
+jquery.validate.js表单验证
+一、用前必备
+官方网站：http://bassistance.de/jquery-plugins/jquery-plugin-validation/ 
+API: http://jquery.bassistance.de/api-browser/plugins.html 
+当前版本：1.5.5
+需要JQuery版本：1.2.6+, 兼容 1.3.2
+<script src="../js/jquery.js" type="text/javascript"></script>
+<script src="../js/jquery.validate.js" type="text/javascript"></script>
+
+二、默认校验规则
+(1)required:true               必输字段
+(2)remote:"check.php"          使用ajax方法调用check.php验证输入值
+(3)email:true                  必须输入正确格式的电子邮件
+(4)url:true                    必须输入正确格式的网址
+(5)date:true                   必须输入正确格式的日期
+(6)dateISO:true                必须输入正确格式的日期(ISO)，例如：2009-06-23，1998/01/22 只验证格式，不验证有效性
+(7)number:true                 必须输入合法的数字(负数，小数)
+(8)digits:true                 必须输入整数
+(9)creditcard:                 必须输入合法的信用卡号
+(10)equalTo:"#field"           输入值必须和#field相同
+(11)accept:                    输入拥有合法后缀名的字符串（上传文件的后缀）
+(12)maxlength:5                输入长度最多是5的字符串(汉字算一个字符)
+(13)minlength:10               输入长度最小是10的字符串(汉字算一个字符)
+(14)rangelength:[5,10]         输入长度必须介于 5 和 10 之间的字符串")(汉字算一个字符)
+(15)range:[5,10]               输入值必须介于 5 和 10 之间
+(16)max:5                      输入值不能大于5
+(17)min:10                     输入值不能小于10
+
+三、默认的提示
+
+messages: {  
+    required: "This field is required.",  
+    remote: "Please fix this field.",  
+    email: "Please enter a valid email address.",  
+    url: "Please enter a valid URL.",  
+    date: "Please enter a valid date.",  
+    dateISO: "Please enter a valid date (ISO).",  
+    dateDE: "Bitte geben Sie ein g眉ltiges Datum ein.",  
+    number: "Please enter a valid number.",  
+    numberDE: "Bitte geben Sie eine Nummer ein.",  
+    digits: "Please enter only digits",  
+    creditcard: "Please enter a valid credit card number.",  
+    equalTo: "Please enter the same value again.",  
+    accept: "Please enter a value with a valid extension.",  
+    maxlength: $.validator.format("Please enter no more than {0} characters."),  
+    minlength: $.validator.format("Please enter at least {0} characters."),  
+    rangelength: $.validator.format("Please enter a value between {0} and {1} characters long."),  
+    range: $.validator.format("Please enter a value between {0} and {1}."),  
+    max: $.validator.format("Please enter a value less than or equal to {0}."),  
+    min: $.validator.format("Please enter a value greater than or equal to {0}.")  
+},  
+ 
+
+
+如需要修改，可在js代码中加入：
+
+jQuery.extend(jQuery.validator.messages, {  
+        required: "必选字段",  
+  remote: "请修正该字段",  
+  email: "请输入正确格式的电子邮件",  
+  url: "请输入合法的网址",  
+  date: "请输入合法的日期",  
+  dateISO: "请输入合法的日期 (ISO).",  
+  number: "请输入合法的数字",  
+  digits: "只能输入整数",  
+  creditcard: "请输入合法的信用卡号",  
+  equalTo: "请再次输入相同的值",  
+  accept: "请输入拥有合法后缀名的字符串",  
+  maxlength: jQuery.validator.format("请输入一个长度最多是 {0} 的字符串"),  
+  minlength: jQuery.validator.format("请输入一个长度最少是 {0} 的字符串"),  
+  rangelength: jQuery.validator.format("请输入一个长度介于 {0} 和 {1} 之间的字符串"),  
+  range: jQuery.validator.format("请输入一个介于 {0} 和 {1} 之间的值"),  
+  max: jQuery.validator.format("请输入一个最大为 {0} 的值"),  
+  min: jQuery.validator.format("请输入一个最小为 {0} 的值")  
+});
+
+推荐做法，将此文件放入messages_cn.js中，在页面中引入
+<script src="../js/messages_cn.js" type="text/javascript"></script>  
+
+四、使用方式
+1.将校验规则写到控件中
+
+<script src="../js/jquery.js" type="text/javascript"></script>  
+<script src="../js/jquery.validate.js" type="text/javascript"></script>  
+<script src="./js/jquery.metadata.js" type="text/javascript"></script>  
+$().ready(function() {  
+ $("#signupForm").validate();  
+});  
+  
+<form id="signupForm" method="get" action="">  
+    <p>  
+        <label for="firstname">Firstname</label>  
+        <input id="firstname" name="firstname" class="required" />  
+    </p>  
+ <p>  
+  <label for="email">E-Mail</label>  
+  <input id="email" name="email" class="required email" />  
+ </p>  
+ <p>  
+  <label for="password">Password</label>  
+  <input id="password" name="password" type="password" class="{required:true,minlength:5}" />  
+ </p>  
+ <p>  
+  <label for="confirm_password">确认密码</label>  
+  <input id="confirm_password" name="confirm_password" type="password" class="{required:true,minlength:5,equalTo:'#password'}" />  
+ </p>  
+    <p>  
+        <input class="submit" type="submit" value="Submit"/>  
+    </p>  
+</form>  
+使用class="{}"的方式，必须引入包：jquery.metadata.js
+
+可以使用如下的方法，修改提示内容：
+
+class="{required:true,minlength:5,messages:{required:'请输入内容'}}"  
+在使用equalTo关键字时，后面的内容必须加上引号，如下代码：
+
+class="{required:true,minlength:5,equalTo:'#password'}"  
+另外一个方式，使用关键字：meta（为了元数据使用其他插件你要包装 你的验证规则 在他们自己的项目中可以用这个特殊的选项）
+
+Tell the validation plugin to look inside a validate-property in metadata for validation rules.
+例如：
+
+meta: "validate"  
+<input id="password" name="password" type="password" class="{validate:{required:true,minlength:5}}" />  
+ 再有一种方式：
+
+$.metadata.setType("attr", "validate");  
+这样可以使用validate="{required:true}"的方式，或者class="required"，但class="{required:true,minlength:5}"将不起作用 
+
+2.将校验规则写到代码中
+
+ 
+
+$().ready(function() {  
+ $("#signupForm").validate({  
+        rules: {  
+   firstname: "required",  
+   email: {  
+    required: true,  
+    email: true  
+   },  
+   password: {  
+    required: true,  
+    minlength: 5  
+   },  
+   confirm_password: {  
+    required: true,  
+    minlength: 5,  
+    equalTo: "#password"  
+   }  
+  },  
+        messages: {  
+   firstname: "请输入姓名",  
+   email: {  
+    required: "请输入Email地址",  
+    email: "请输入正确的email地址"  
+   },  
+   password: {  
+    required: "请输入密码",  
+    minlength: jQuery.format("密码不能小于{0}个字符")  
+   },  
+   confirm_password: {  
+    required: "请输入确认密码",  
+    minlength: "确认密码不能小于5个字符",  
+    equalTo: "两次输入密码不一致不一致"  
+   }  
+  }  
+    });  
+});  
+//messages处，如果某个控件没有message，将调用默认的信息  
+  
+<form id="signupForm" method="get" action="">  
+    <p>  
+        <label for="firstname">Firstname</label>  
+        <input id="firstname" name="firstname" />  
+    </p>  
+ <p>  
+  <label for="email">E-Mail</label>  
+  <input id="email" name="email" />  
+ </p>  
+ <p>  
+  <label for="password">Password</label>  
+  <input id="password" name="password" type="password" />  
+ </p>  
+ <p>  
+  <label for="confirm_password">确认密码</label>  
+  <input id="confirm_password" name="confirm_password" type="password" />  
+ </p>  
+    <p>  
+        <input class="submit" type="submit" value="Submit"/>  
+    </p>  
+</form>  
+ 
+
+required:true 必须有值
+required:"#aa:checked"表达式的值为真，则需要验证
+required:function(){}返回为真，表时需要验证
+后边两种常用于，表单中需要同时填或不填的元素
+ 
+五、常用方法及注意问题
+1.用其他方式替代默认的SUBMIT
+
+$().ready(function() {  
+ $("#signupForm").validate({  
+        submitHandler:function(form){  
+            alert("submitted");     
+            form.submit();  
+        }      
+    });  
+});  
+ 
+
+
+可以设置validate的默认值，写法如下：
+
+$.validator.setDefaults({  
+ submitHandler: function(form) { alert("submitted!");form.submit(); }  
+});  
+ 
+
+
+如果想提交表单, 需要使用form.submit()而不要使用$(form).submit()
+
+2.debug，如果这个参数为true，那么表单不会提交，只进行检查，调试时十分方便
+
+$().ready(function() {  
+ $("#signupForm").validate({  
+        debug:true  
+    });  
+});  
+ 
+
+
+如果一个页面中有多个表单，用
+
+$.validator.setDefaults({  
+   debug: true  
+})  
+ 
+
+3.ignore：忽略某些元素不验证
+
+ignore: ".ignore"  
+ 
+
+4.errorPlacement：Callback  Default: 把错误信息放在验证的元素后面  
+指明错误放置的位置，默认情况是：error.appendTo(element.parent());即把错误信息放在验证的元素后面 
+errorPlacement: function(error, element) {   
+    error.appendTo(element.parent());   
+}
+//示例：
+
+<tr>  
+    <td class="label"><label id="lfirstname" for="firstname">First Name</label></td>  
+    <td class="field"><input id="firstname" name="firstname" type="text" value="" maxlength="100" /></td>  
+    <td class="status"></td>  
+</tr>  
+<tr>  
+    <td style="padding-right: 5px;">  
+        <input id="dateformat_eu" name="dateformat" type="radio" value="0" />  
+        <label id="ldateformat_eu" for="dateformat_eu">14/02/07</label>  
+    </td>  
+    <td style="padding-left: 5px;">  
+        <input id="dateformat_am" name="dateformat" type="radio" value="1"  />  
+        <label id="ldateformat_am" for="dateformat_am">02/14/07</label>  
+    </td>  
+    <td></td>  
+</tr>  
+<tr>  
+    <td class="label">&nbsp;</td>  
+    <td class="field" colspan="2">  
+        <div id="termswrap">  
+            <input id="terms" type="checkbox" name="terms" />  
+            <label id="lterms" for="terms">I have read and accept the Terms of Use.</label>  
+        </div>  
+    </td>  
+</tr>  
+errorPlacement: function(error, element) {  
+    if ( element.is(":radio") )  
+        error.appendTo( element.parent().next().next() );  
+    else if ( element.is(":checkbox") )  
+        error.appendTo ( element.next() );  
+    else  
+        error.appendTo( element.parent().next() );  
+}  
+ 
+代码的作用是：一般情况下把错误信息显示在<td class="status"></td>中，如果是radio显示在<td></td>中，如果是checkbox显示在内容的后面
+errorClass：String  Default: "error"  
+指定错误提示的css类名，可以自定义错误提示的样式
+errorElement：String  Default: "label"  
+用什么标签标记错误，默认的是label你可以改成em
+errorContainer：Selector  
+显示或者隐藏验证信息，可以自动实现有错误信息出现时把容器属性变为显示，无错误时隐藏，用处不大
+errorContainer: "#messageBox1, #messageBox2"
+errorLabelContainer：Selector 
+把错误信息统一放在一个容器里面。
+wrapper：String
+用什么标签再把上边的errorELement包起来
+一般这三个属性同时使用，实现在一个容器内显示所有错误提示的功能，并且没有信息时自动隐藏
+
+errorContainer: "div.error",  
+errorLabelContainer: $("#signupForm div.error"),  
+wrapper: "li"  
+ 
+
+
+ 
+设置错误提示的样式，可以增加图标显示
+
+input.error { border: 1px solid red; }  
+label.error {  
+  background:url("./demo/images/unchecked.gif") no-repeat 0px 0px;  
+  padding-left: 16px;  
+  padding-bottom: 2px;  
+  font-weight: bold;  
+  color: #EA5200;  
+}  
+label.checked {  
+  background:url("./demo/images/checked.gif") no-repeat 0px 0px;  
+}  
+success：String,Callback   
+ 
+
+
+要验证的元素通过验证后的动作，如果跟一个字符串，会当做一个css类，也可跟一个函数
+
+success: function(label) {  
+    // set &nbsp; as text for IE  
+    label.html("&nbsp;").addClass("checked");  
+    //label.addClass("valid").text("Ok!")  
+}  
+ 
+
+
+添加"valid" 到验证元素, 在CSS中定义的样式<style>label.valid {}</style>
+success: "valid"
+
+nsubmit： Boolean  Default: true  
+提交时验证. 设置唯false就用其他方法去验证
+onfocusout：Boolean  Default: true  
+失去焦点是验证(不包括checkboxes/radio buttons) 
+onkeyup：Boolean  Default: true  
+在keyup时验证.
+onclick：Boolean  Default: true  
+在checkboxes 和 radio 点击时验证
+focusInvalid：Boolean  Default: true  
+提交表单后，未通过验证的表单(第一个或提交之前获得焦点的未通过验证的表单)会获得焦点
+focusCleanup：Boolean  Default: false  
+如果是true那么当未通过验证的元素获得焦点时，移除错误提示。避免和 focusInvalid 一起用
+ 
+// 重置表单
+
+$().ready(function() {  
+ var validator = $("#signupForm").validate({  
+        submitHandler:function(form){  
+            alert("submitted");     
+            form.submit();  
+        }      
+    });  
+    $("#reset").click(function() {  
+        validator.resetForm();  
+    });  
+});  
+ remote：URL
+
+使用ajax方式进行验证，默认会提交当前验证的值到远程地址，如果需要提交其他的值，可以使用data选项
+
+remote: "check-email.php"  
+remote: {  
+    url: "check-email.php",     //后台处理程序  
+    type: "post",               //数据发送方式  
+    dataType: "json",           //接受数据格式     
+    data: {                     //要传递的数据  
+        username: function() {  
+            return $("#username").val();  
+        }  
+    }  
+}  
+ 
+
+远程地址只能输出 "true" 或 "false"，不能有其它输出
+ 
+ 
+addMethod：name, method, message
+自定义验证方法
+// 中文字两个字节  
+jQuery.validator.addMethod("byteRangeLength", function(value, element, param) {  
+    var length = value.length;  
+    for(var i = 0; i < value.length; i++){  
+        if(value.charCodeAt(i) > 127){  
+            length++;  
+        }  
+    }  
+  return this.optional(element) || ( length >= param[0] && length <= param[1] );     
+}, $.validator.format("请确保输入的值在{0}-{1}个字节之间(一个中文字算2个字节)"));  
+  
+// 邮政编码验证     
+jQuery.validator.addMethod("isZipCode", function(value, element) {     
+    var tel = /^[0-9]{6}$/;  
+    return this.optional(element) || (tel.test(value));  
+}, "请正确填写您的邮政编码");  
+ 
+
+radio和checkbox、select的验证
+radio的required表示必须选中一个
+
+ 
+
+<input  type="radio" id="gender_male" value="m" name="gender" class="{required:true}" />  
+<input  type="radio" id="gender_female" value="f" name="gender"/>  
+checkbox的required表示必须选中  
+<input type="checkbox" class="checkbox" id="agree" name="agree" class="{required:true}" />  
+checkbox的minlength表示必须选中的最小个数,maxlength表示最大的选中个数,rangelength:[2,3]表示选中个数区间  
+<input type="checkbox" class="checkbox" id="spam_email" value="email" name="spam[]" class="{required:true, minlength:2}" />  
+<input type="checkbox" class="checkbox" id="spam_phone" value="phone" name="spam[]" />  
+<input type="checkbox" class="checkbox" id="spam_mail" value="mail" name="spam[]" />  
+  
+select的required表示选中的value不能为空  
+<select id="jungle" name="jungle" title="Please select something!" class="{required:true}">  
+    <option value=""></option>  
+    <option value="1">Buga</option>  
+    <option value="2">Baga</option>  
+    <option value="3">Oi</option>  
+</select>  
+select的minlength表示选中的最小个数（可多选的select）,maxlength表示最大的选中个数,rangelength:[2,3]表示选中个数区间  
+<select id="fruit" name="fruit" title="Please select at least two fruits" class="{required:true, minlength:2}" multiple="multiple">  
+    <option value="b">Banana</option>  
+    <option value="a">Apple</option>  
+    <option value="p">Peach</option>  
+    <option value="t">Turtle</option>  
+</select>  
+ 
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+ 
+
+jQuery.Validate是监控form，在任何提交表单的操作前jQuery.Validate都会检测表单里的输入项是否满足规则，满足才允许提交。所以需
+
+ 
+
+要在jQuery(document).ready（）时为form进行验证注册
+
+ 
+
+具体代码如下:
+
+ 
+
+复制代码
+复制代码
+<body> 
+<form id="form1" runat="server"> 
+<div> 
+<asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server"> 
+</asp:ContentPlaceHolder> 
+</div> 
+</form> 
+<script type="text/javascript"> 
+jQuery(document).ready(function() { 
+jQuery("#form1").validate(); 
+}); 
+</script>
+</body>
+复制代码
+复制代码
+ 
+
+jQuery.Validate为我们提供了3种验证编写方式，各有优缺点：
+
+ 
+
+1、在input对象中书写class样式指定验证规则或属性验证规则：
+
+ 
+
+如<input type=”text” class=”required”/>
+
+ 
+
+最简单、最便捷，提示消息使用jQuery.Validate的内置的消息（自定义扩展验证规则也属于此项），但是由于是以样式名的方式进行验证，导致了日后修改必须找到相应的input对象，同时无法使用高级验证规则，具体说明请向下看
+
+ 
+
+2、同第1条，这种验证规则方式也是在input对象中书写class样式，只不过书写的方式改为了JSON格式，但是这种方式提供了自定义验证消息的支持：
+
+ 
+
+如<input type=”text” class="{required:true,minlength:5,,messages:{required:'请输入内容'}”/>
+
+ 
+
+简单、方便，但个人认为有点臃肿，还是和第1条一样和相对应的input对象纠缠在一起，并且还增加消息自定义，使得input对象变的更大了，干扰了页面代码的阅读，但可以使用高级验证规则（实际就是将第3种JS以JSON的格式放到具体的class中
+
+ 
+
+3、这种方式使用纯JS的方式：
+
+ 
+
+如：
+
+$().ready(function() { 
+    $("#aspnetform").validate({ 
+         rules: { 
+         name: "required", 
+         email: { 
+                 required: true, 
+                 email: true 
+         }
+
+     })
+
+})
+
+ 
+
+很好的解决了HTML和验证规则的分离，就是书写较为麻烦，需要单独写JS脚本，但好处是可以统一验证规范，将每个页面的验证规则都写在头部的脚本中，方便日后维护。
+
+ 
+
+注意：以上3种验证方式的消息如果未指定都会默认调用内置的消息
+
+ 
+
+1、在使用上一篇中第2种方式，以JSON的格式编写验证规则，影响了正常的class使用，如何处理？
+
+ 
+
+2、在ASP.NET下，所有的按钮都会提交form表单，所以都会引发验证，如何处理？
+
+ 
+
+3、我希望验证的提示信息可以在统一的地方显示，如何处理？
+
+ 
+
+4、我在开发的过程中，我不确定所编写的规则是否正确，如何进行调试？
+
+ 
+
+5、我使用的是微软AJAX控件，想监控dropdownlist是否选择，为何不起作用?
+
+ 
+
+6、radiobox，checkbox，listbox如何进行高级应用？如何指定选择数量？
+
+ 
+
+1点：在使用上一篇中第2种方式，以JSON的格式编写验证规则，影响了正常的class使用，如何处理？（具体见Middle-4.aspx）
+
+ 
+
+首先看下使用第2种方式是如何编写验证规则的：
+
+ 
+
+<asp:TextBox ID="txtPwd" TextMode="Password" runat="server" CssClass="{required:true,minlength:6,messages:{required:'你不输入密码怎么行呢?',minlength:'密码太短啦至少6位'}}"></asp:TextBox>
+
+ 
+
+可以看到这样写验证规则虽然简单，但是如果我要为这个控件应用其他样式怎么办？所以现在就是处理这个问题的时候了，在页面的头部加上一句代码：
+
+ 
+
+jQuery.metadata.setType("attr", "validate");
+
+ 
+
+由于这种验证规则方式需要依赖jQuery.metadata才可以正常运作，所以我们需要在jQuery.metadata上做文章，分析下jQuery.metadata的代码，可以看到，默认情况下它是检测控件的class属性：
+
+ 
+
+defaults : { 
+            type: 'class', 
+            name: 'metadata', 
+            cre: /({.*})/, 
+            single: 'metadata' 
+        }
+
+ 
+
+那我们可不可以更改这个属性呢？肯定是可以的，就是在页面上加上那句代码，更改其检测的属性。
+
+ 
+
+接着我们还需要修改下页面中的代码，将原来所有的"CssClass”改为我们更改的检测属性"validate”、
+
+ 
+
+这样就很好的更改了验证规则所存放的属性了。
+
+ 
+
+第2点：在ASP.NET下，所有的按钮都会提交form表单，所以都会引发验证，如何处理？（具体见Middle-4.aspx中btnNoValidate按钮）
+
+ 
+
+在实际的开发当中，一个页面上总会有N个按钮，由于ASP.NET的机制特性，所有的控件都会回发页面，也就提交了表单，但是此时整个表单都被jQuery.Validate所监控，所以只要页面中有某个地方不符合验证规则，任何回发页面的操作都会被拦截住，但是实际上我们需要引发验证的按钮只有1或者2个，而其他按钮不需要，这时我们就要想办法了。
+
+ 
+
+其实很简单，就是为不需要引发验证的控件加个样式"cancel"即可，代码如下：
+
+ 
+
+<asp:Button ID="btnNoValidate" runat="server" Text="点我不会引发验证哦" CssClass="cancel" />
+
+ 
+
+怎么样很简单吧？
+
+ 
+
+第3点：我希望验证的提示信息可以在统一的地方显示，如何处理？（具体见Middle-5.aspx）
+
+ 
+
+在开发的过程当中，会有一些特殊的需求，就比如页面上使用了tab页面，而提交按钮就一个，这时就需要将验证提示信息统一放在一个位置，好方便查看，如图：
+
+ 
+
+pic21
+
+ 
+
+要实现这个效果只需在JS编写验证规则时添加：
+
+ 
+
+errorPlacement: function(error, element) { 
+                       error.html(error.html()+"<br/>"); 
+                       error.appendTo("#errorContainer"); 
+               }
+
+ 
+
+error是一个label对象里面包含了错误消息，element则是验证未通过的对象元素，通过errorPlacement可以方便的将验证提示信息统一放入一个位置。
+
+ 
+
+第4点：我在开发的过程中，我不确定所编写的规则是否正确，如何进行调试？（具体见Middle-5.aspx）
+
+ 
+
+这个就比较简单了，jQuery.Validate默认已经为我们考虑过了，只需在JS编写规则时添加一个属性：
+
+ 
+
+debug:true
+
+ 
+
+这样就表示现在在调试，这时不会提交表单。
+
+ 
+
+第5点：我使用的是微软AJAX控件，想监控dropdownlist是否选择，为何不起作用?（具体见Middle-5.aspx中的性别）
+
+ 
+
+在使用微软AJAX控件中的dropdownlist级联时，比如省市区联动，如果省没有选择，则市和区都是灰的，是disabled状态，是被禁用的，类似代码如下：
+
+ 
+
+<asp:DropDownList ID="DropDownList1" runat="server" CssClass="required" disabled="true"> 
+    <asp:ListItem></asp:ListItem> 
+    <asp:ListItem Value="1">男</asp:ListItem> 
+    <asp:ListItem Value="0">女</asp:ListItem> 
+</asp:DropDownList>
+
+ 
+
+我这边是强制把这个DropDownList禁用了，这时如果为这个控件加上“required”将不会有任何反应，因为在jQuery.Validate代码中默认是不验证的，具体代码见jQuery.Validate.js414行：
+
+ 
+
+not(":submit, :reset, :image, [disabled]")
+
+ 
+
+所以为了方便我们使用，我们修改下代码，将[disabled]"去除，改为：
+
+ 
+
+not(":submit, :reset, :image")
+
+ 
+
+这样再刷新下页面，验证就起作用了。
+
+ 
+
+第6点：radiobox，checkbox，listbox如何进行高级应用？如何指定选择数量？（具体请见radio-checkbox-select-demo.html）
+
+ 
+
+这点我直接引用了官方关于radiobox，checkbox，listbox应用的例子，因为官方的例子已经写的非常好了。
+
+ 
+
+1、扩展验证规则，jQuery.Validate只提供了一些基本的验证功能，并不能满足我们日常开发的需求，所以我们要为jQuery.Validate扩展验证规则。
+
+ 
+
+2、分组验证，在开发的时候有时会遇到的一个问题就是，不同按钮引发不同的验证。
+首先来介绍下第一点：扩展验证规则，在jQuery.Validate默认的验证规则无法满足我们的日常开发需求的时候，我们需要根据自己的业务需求指定一些相应的规则。（具体见MasterPage.master）
+为了扩展验证规则，我们首先要看下jQuery.Validate为我们提供的扩展方法：
+addMethod: function(name, method, message) { 
+    $.validator.methods[name] = method; 
+    $.validator.messages[name] = message; 
+    if (method.length < 3) { 
+        $.validator.addClassRules(name, $.validator.normalizeRule(name)); 
+    } 
+},
+这段代码就是用来扩展验证规则的，意思很简单，就是向jQuery.Validate添加验证方法。
+接收3个参数：name-验证规则名
+                   method-验证规则实现函数（function）
+                   message-验证不通过显示的错误消息
+当我们调用了这个方法后，我们所写的规则自动就会加入到jQuery.Validate规则中。
+好了，我们看下具体如何实现：
+手机号码验证：
+jQuery.validator.addMethod("telphoneValid", function(value, element) { 
+    var tel = /^(130|131|132|133|134|135|136|137|138|139|150|153|157|158|159|180|187|188|189)\d{8}$/; 
+    return tel.test(value) || this.optional(element); 
+}, "请输入正确的手机号码");
+
+这边的method需要注意的是，这个method实现函数接收2个元素：
+value：检测的对象的值
+element：检测的对象
+这边我定义了一个名为“telphoneValid”的验证规则，在验证规则里我首先定义了个手机验证的正则表达式，然后将值放入正则表达式进行验证，返回验证结果，返回的错误消息是“请输入正确的手机号码”。
+这样就完成了一个简单的手机号码验证规则扩展。
+第2点：分组验证，这个分组验证在默认的jQuery.Validate中默认是不支持的，也是我觉得很不爽的，因为在实际的开发过程中经常会碰到需要分组验证的时候。
+这点微软的验证控件就做的很好，在微软的控件里，默认都有ValidationGroup这个属性，只要把属性名设置为相同就可以进行分组验证了，但是jQuery.Validate自身却没提供这个功能，所以我们只能自己扩展了。
+来一下具体的场景，在一个页面里有2个tab页面，不同tab页面需要不同的提交按钮：
+这2个就是标准的分组验证情况，如果不设置分组验证的情况下，点击[基本信息提交]和[描述提交]按钮后页面上所有的验证都会被相应，这是因为2个按钮都在一个form表单中，2个按钮的点击事件默认都是在客户端提交表单，然后由服务器端来分配执行代码，所以问题就出现了。
+这时我们就需要引入分组验证了，这个解决思路是我在一个国外的网站找到的，不过具体地址我找不到了，这个方法有个弊端就是必须是将需要分组的控件必须放入不同的容器中，如div,table等，因为采用的是标识class样式来进行分组验证。
+看下具体代码：
+//初始化分组验证
+function InitValidationGroup() {
+    $('.validationGroup .causesValidation').click(Validate);
+ 
+    $('.validationGroup :text').keydown(function(evt) {
+        if (evt.keyCode == 13) {
+            var $nextInput = $(this).nextAll(':input:first');
+ 
+            if ($nextInput.is(':submit')) {
+                Validate(evt);
+            }
+            else {
+                evt.preventDefault();
+                $nextInput.focus();
+            }
+        }
+    });
+}
+function Validate(evt) {
+    var $group = $(this).parents('.validationGroup');
+    var isValid = true;
+    $group.find(':input').each(function(i, item) {
+        if (!$(item).valid())
+            isValid = false;
+    });
+    if (!isValid)
+        evt.preventDefault();
+}
+
+上面的代码就是用来进行分组验证的初始化的，这段代码会找寻页面中标有validationGroup样式的元素（分组的容器），然后在这个元素中找带causesValidation样式的元素（这个元素是引发验证的按钮），
+上面代码实现分组验证的逻辑就是当带causesValidation样式的元素引发验证后会找寻这个元素的父级validationGroup元素，然后遍历validationGroup元素下的所有有验证规则的元素判断是否验证通过。
+页面代码:
+<div id="tabs">
+    <ul>
+        <li><a href="#baseinfo">基本信息</a></li>
+        <li><a href="#personaldesc">个人描述</a></li>
+    </ul>
+    <div id="baseinfo" class="validationGroup">
+        <table cellpadding="1" cellspacing="1" border="1" width="50%" align="center">
+            <tr>
+                <td>
+                    用户名
+                </td>
+                <td>
+                    <asp:TextBox ID="txtUid" runat="server"></asp:TextBox>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    密码
+                </td>
+                <td>
+                    <asp:TextBox ID="txtPwd" ValidationGroup="" TextMode="Password" runat="server"></asp:Text
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    确认密码
+                </td>
+                <td>
+                    <asp:TextBox ID="txtRePwd" TextMode="Password" runat="server"></asp:TextBox>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    姓名
+                </td>
+                <td>
+                    <asp:TextBox ID="txtName" runat="server"></asp:TextBox>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    年龄
+                </td>
+                <td>
+                    <asp:TextBox ID="txtAge" runat="server"></asp:TextBox>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    性别
+                </td>
+                <td>
+                    <asp:DropDownList ID="DropDownList1" runat="server" CssClass="required" disabled="true">
+                        <asp:ListItem></asp:ListItem>
+                        <asp:ListItem Value="1">男</asp:ListItem>
+                        <asp:ListItem Value="0">女</asp:ListItem>
+                    </asp:DropDownList>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    邮箱
+                </td>
+                <td>
+                    <asp:TextBox ID="txtEmail" runat="server"></asp:TextBox>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <asp:Button ID="Button3" runat="server" Text="基本信息提交" CssClass="causesValidation"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="personaldesc" class="validationGroup">
+        <p>
+            <asp:TextBox ID="txtDescription" runat="server" TextMode="MultiLine" Width="500px"
+                Height="100px"></asp:TextBox>
+        </p>
+        <asp:Button ID="Button1" runat="server" Text="描述提交" CssClass="causesValidation"/>
+    </div>
+</div>
+ 
+<script type="text/javascript">
+    InitRules();
+    isValidationGroup = true;
+</script>
+ 
+
+分析下代码为2个tab页面都加上validationGroup样式，引发验证的按钮加上causesValidation样式，同时还需要标记一个isValidationGroup = true; 表示页面需要进行分组验证，传递回母版页。
+
+ 
+
+注意：这边的逻辑和手写JS验证规则是一个逻辑，在母版页建立一个isValidationGroup属性默认为false，只有当页面需要进行分组验证则设为true。
+
+ 
+
+接下来看下母版页的的jQuery(document).ready()中的带代码：
+
+if (isValidationGroup) {
+    if (opts != undefined || opts != null) {
+        jQuery("#<%=form1.ClientId %>").validate(jQuery.extend(opts, { onsubmit: false }));
+    } else {
+        jQuery("#<%=form1.ClientId %>").validate({
+            onsubmit: false
+        });
+    }
+    InitValidationGroup();
+} else {
+    if (opts != undefined || opts != null) {
+        jQuery("#<%=form1.ClientId %>").validate(opts);
+    } else {
+        jQuery("#<%=form1.ClientId %>").validate();
+    }
+}
+
+ 
+
+判断isValidationGroup是否需要进行分组验证，同时如果isValidationGroup为true，需要加入onsubmit：false，否则分组验证将无法有效。
+
+ 
+
+1、如何使用jQuery.Validate进行AJAX验证?
+
+ 
+
+2、默认jQuery.Validate在进行AJAX验证时返回必须是bool类型，如何返回一个对象包括错误消息及验证结果？
+
+ 
+
+3、在反复使用jQuery.Validate进行AJAX验证时，总是需要编写相关AJAX参数，可否进行进一步封装？
+
+ 
+
+第一点：如何使用jQuery.Validate进行AJAX验证?（具体见High-2.aspx）
+
+ 
+
+jQuery.Validate为我们提供了一个方便的AJAX验证方式（封装了jQuery的AJAX，同时将jQuery的AJAX和jQuery.Validate的验证很好的结合在一起），在此我仅仅介绍jQuery.Validate在ASP.NET下如何进行AJAX验证，PHP、JSP等请查看官方例子。
+
+ 
+
+我是采用jQuery.Validate+WebService进行AJAX验证，客户端编写jQuery.Validate的remote验证属性，服务器端采用WebSerice进行接收参数进行验证。
+
+ 
+
+首先来看下jQuery.Validate的remote属性如何编写AJAX验证规则：
+
+function InitRules() {
+            opts = {
+             rules:
+                {
+                    <%=txtUid.UniqueID %>: 
+                    {
+                        required: true,
+                        remote:{
+                            type: "POST",
+                            async: false,
+                            url: "WebService.asmx/CheckUid",
+                            dataType: "xml",
+                            data: {uid:function(){ return jQuery("#<%=txtUid.ClientID %>").val();}}
+                        }
+                    }
+                }
+            }
+        }
+ 
+如果使用过jQuery.ajax的朋友肯定会很熟悉这段代码，jQuery.Validate的remote采用和jQuery.ajax相同的参数设置（原因就上面所说的封装了jQuery.ajax的原因）。
+
+ 
+
+这边来详细讲解下jQuery.Validate的remote的一些知识：
+
+1、jQuery.Validate的remote默认可以直接填写远程验证的地址，格式为：remote:”validate.aspx”，但是很多情况下这个远程验证需要提交参数、返回类型等限制，所以就可以采用在“{}”中编写具体属性的方式来包装提交参数。
+
+2、jQuery.Validate的remote官方代码中，远程的输出只能是true或者false，不允许有其他输出，这个我觉得不太好，具体的扩展在后面我会讲到。
+
+3、jQuery.Validate的remote在使用时如果想提交参数需要以JSON的方式提交格式如下：
+
+data: {
+        uid:function(){ 
+                return jQuery("#<%=txtUid.ClientID %>").val();
+        }
+}
+
+此处肯定会有人不明白，为什么参数需要以function的形式提交，而不是直接写
+
+jQuery("#<%=txtUid.ClientID %>").val();
+
+这里我要说明的是：jQuery.Validate的验证规则是在页面加载的时候就已经被加载了的，如果还是像以往一样直接写"jQuery("#<%=txtUid.ClientID %>").val();"，那么验证的时候提交给服务器端的数据永远是页面加载时txtUid控件的值。
+
+而使用function的好处就是在页面加载的时候仅仅告诉jQuery.Validate，在控件需要进行remote验证的时候需要调用function这个函数，这样就保证了在执行remote验证的时候可以获取到最新的值
+
+ 
+
+我还修改了jQuery.Validate的remote方法，先来看下我修改的代码（具体见scripts/jquery.validate1.js 896行）：
+if (previous.old !== value) {
+    previous.old = value;
+    var validator = this;
+    this.startRequest(element);
+    var data = {};
+    data[element.name] = value;
+    $.ajax($.extend(true, {
+        //url:url,//此URL无法获取
+        url: param.url,//获取param验证规则中所写路径
+        mode: "abort",
+        port: "validate" + element.name,
+        type: param.type,
+        dataType: "json",
+        //data:data,
+        data: param.data || data,//获取param.data或data中所提交的参数
+        success: function(response) {
+        以下省略...
+}
+
+这边我修改了url和data的获取方式，主要是因为在真正执行的时候，变量url是空的，所以需要从param中获取。
+
+而data为什么要改成param.data || data，主要原因就是下面这句代码：
+
+data[element.name] = value;
+
+这句代码的意思就是：为哪个控件设置远程验证就获取哪个控件的值，但是在实际的开发中，当遇到进行AJAX验证的时候会出现需要同时提交多个数据的情况，此时这句代码就是错误的了，所以需要改成
+
+param.data || data，这样就能保证在提交多个数据的时候以多个数据为准。
+下面来看下webservice的代码：
+[WebMethod]
+public bool CheckUid(string uid)
+{
+    return uid == "testuid" ? true : false;
+}
+相当的简单，就是判断下用户名是不是指定的用户名。
+注意：webservice.cs中必须将[System.Web.Script.Services.ScriptService]这个特性取消注释，否则AJAX验证将无效！
+第二点：默认jQuery.Validate在进行AJAX验证时返回必须是bool类型，如何返回一个对象包括错误消息及验证结果？（具体见App_Code/WebService.cs/CheckUid）
+在第一点中介绍jQuery.Validate知识的时候就提到了，jQuery.Validate默认直接收true或false，但是在具体的开发中，我们会分层开发，三层或者多层，webservice在接收到验证请求后不做具体的处理直接调用逻辑层的验证方法，交由逻辑层进行验证操作（当然你也可以把验证全部写在webservice中，但是这样就体现不出分层的好处了），此时的验证会产生多种情况，以最常见的用户名验证为例：
+    1）用户名已存在，此时的消息应该是“用户名已存在，请重新输入！”
+    2）用户名不符合规则，此时的消息应该是“用户名不符合规则，请重新输入！”
+    3）验证时出现程序异常，此时的消息应该是“程序出现异常，请联系管理员！”
+可以看出，仅仅一个用户名验证就会出现这3种信息，如果不返回一个明确的消息，仅仅告诉用户“用户名有误”，客户端的使用者将会相当的痛苦，因为使用者并不知道他的用户名输入到底错在哪了。
+
+所以为了更好的客户体验，以及项目的合理性，我们在服务器端封装一个实体类（具体见AppCode/AjaxClass），代码如下：
+
+[Serializable]
+public class AjaxClass
+{
+    public string Msg { get; set; }
+    public int Result { get; set; }
+}
+
+就是一个最简单的实体类，有2个属性，Msg和Result，Msg用于存放验证失败的信息，Result用于存放结果。
+
+看下WebSerivce的代码如何修改：
+[WebMethod]
+public AjaxClass CheckUid(string uid)
+{
+    //return uid == "testuid" ? true : false;
+    AjaxClass ajaxClass = new AjaxClass();
+    try
+    {
+        if (uid == "testuid")
+        {
+            ajaxClass.Msg = "用户名已存在,请重新输入!";
+            ajaxClass.Result = 0;
+        }
+        else if (uid.IndexOf("test") == -1)
+        {
+            ajaxClass.Msg = "用户名格式不正确,用户名必须包含test,请重新输入!";
+            ajaxClass.Result = 0;
+        }
+        else
+        {
+            ajaxClass.Msg = "格式正确!";
+            ajaxClass.Result = 1;
+        }
+    }
+    catch
+    {
+        ajaxClass.Msg = "程序出现异常,请联系管理员!";
+        ajaxClass.Result = 0;
+    }
+    return ajaxClass;
+}
+
+上面的WebService就完整的实现了我先前说的3种错误情况（由于这边仅仅是例子所以就只有表示层，实际开发中需要分层开发，此代码应该放入业务逻辑层）
+
+注意：在webservice返回值前，如果检查成功必须要为ajaxClass.Result = 1，否则客户端验证会无法通过。
+
+虽然完成了服务器端的代码修改，但是直接运行页面还是会出错，这是因为我上面所说过的，jQuery.Validate的remote远程的输出只能是true或者false，我们来看下具体的代码，其中注释掉的就是原来官方的代码：
+
+success: function(response) {
+    if (response.Result) {//if(response){
+        var submitted = validator.formSubmitted;
+        validator.prepareElement(element);
+        validator.formSubmitted = submitted;
+        validator.successList.push(element);
+        validator.showErrors();
+    } else {
+        var errors = {};
+        //errors[element.name] = response.Result || validator.defaultMessage(element, "remote");
+        errors[element.name] = response.Msg;
+        validator.showErrors(errors);
+    }
+    previous.message = response.Msg; //previous.valid = response;
+    previous.valid = response.Result;
+    validator.stopRequest(element, response.Result);
+}
+
+可以看到一共修改了3处地方：
+1、判断返回值，原来是直接判断response，现在则是判断response.Result，因为现在的response已经是一个包含消息及结果的对象了。
+
+2、错误消息，原来的错误消息是直接获取默认配置好的消息，我这边是获取response.Msg。
+
+3、设置previous对象，将previous对象的消息和结果设置为AJAX返回的消息和结果，以供jQuery.Validate下面代码的返回。
+
+这样jQuery.Validate的remote的方法就修改了，但是并没有结束，原因是先前在AJAX提交参数的时候由于jQuery.Validate的验证规则的缘故，提交的参数并不是以JSON的格式提交的而是以{uid:function()}这样的方式，结果就导致了无法设置jQuery.AJAX的contentType:"application/json; charset=utf-8"，如果设置了会出现以下错误：
+
+pic24这样从webservice返回的AjaxClass对象就无法像以往的JSON方式直接操作了，所以我们只能换一种格式——XML，因为webservice默认返回的数据是XML格式：
+
+<?xml version="1.0" encoding="utf-8" ?> 
+- <AjaxClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://tempuri.org/">
+  <Msg>用户名格式不正确,用户名必须包含test,请重新输入!</Msg> 
+  <Result>0</Result> 
+  </AjaxClass>
+
+接下来看下具体的remote方法应该如何编写，设置dataType:”xml”，然后将XML数据转换成一个对象以供上面我修改的jQuery.Validate的remote方法中ajaxsuccess的使用，具体看一下代码：
+
+remote:{
+    type: "POST",
+    dataType:"json",
+    async: false,
+    url: "WebService.asmx/CheckUid",
+    data: {uid:function(){ return jQuery("#<%=txtUid.ClientID %>").val();}},
+    dataFilter: function(dataXML) {
+        var result = new Object();
+        result.Result = jQuery(dataXML).find("Result").text();
+        result.Msg = jQuery(dataXML).find("Msg").text();
+        if (result.Result == "-1") {
+            result.Result = false;
+            return result;
+        }
+        else {
+            result.Result = result.Result == "1" ? true : false;
+            return result;
+        }
+    }
+}
+就是jQuery.Ajax方法dataFilter，可以在AJAX请求成功后将数据进行过滤处理，这里我就使用了jQuery方法把结果和消息从XML中获取出来直接赋给一个对象，再将这个对象返回，交由ajaxsuccess使用。
+这样就算是完成了修改jQuery.Validate的remote方法，使得可以返回验证结果及验证消息，看下效果图：
+第三点：在反复使用jQuery.Validate进行AJAX验证时，总是需要编写相关AJAX参数，可否进行进一步封装？（具体见High-3.aspx和jquery.validate.extension.js）
+
+在开发一个系统的时候经常会用到AJAX的验证，而如果每次都要编写上面那么多的代码还是很不方便，所以我现在就来进行一下简单的封装，代码如下：
+
+//远程验证抽象方法
+function GetRemoteInfo(postUrl, data) {
+    var remote = {
+        type: "POST",
+        async: false,
+        url: postUrl,
+        dataType: "xml",
+        data: data,
+        dataFilter: function(dataXML) {
+            var result = new Object();
+            result.Result = jQuery(dataXML).find("Result").text();
+            result.Msg = jQuery(dataXML).find("Msg").text();
+            if (result.Result == "-1") {
+                result.Result = false;
+                return result;
+            }
+            else {
+                result.Result = result.Result == "1" ? true : false;
+                return result;
+            }
+        }
+    };
+    return remote;
+}
+
+这个函数主要接收2个参数，一个是远程验证的路径和需要提交的参数，返回包装好的remote对象。
+
+<script src="scripts/jquery.validate.extension.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function InitRules() {
+            var dataInfo = {uid:function(){ return jQuery("#<%=txtUid.ClientID %>").val();}};
+            var remoteInfo = GetRemoteInfo('WebService.asmx/CheckUid', dataInfo);
+ 
+            opts = {
+             rules:
+                {
+                    <%=txtUid.UniqueID %>: 
+                    {
+                        required: true,
+                        remote:remoteInfo
+                    }
+                }
+            }
+        }
+    </script>
+页面上只要做3步操作：
+1、包装好需要提交的data对象。
+2、将远程验证地址和包装好的data对象传递给封装好的方法获取remote对象。
+3、将函数返回的remote对象放入规则中。
+【最新评论】
+1. Re:jquery.validate.js表单验证
+请问，如果ajax的contentType: "application/json"是这样的，那个data如何写，没法写成动态获取了
+--散客哈希
+2. Re:js判断字段是否为空 isNull
+--ldl_xz
+3. Re:jquery.validate.js表单验证
+给力
+--太极风云
+4. Re:js替换字符串中所有指定的字符
+找到原因了，是我好笨。方法是可以的。
+--走在四季
+5. Re:js替换字符串中所有指定的字符
+array3[int4] = array3[int4].replace(/\#/g," ");
+
+为什么我的不行呢。。把所有的#替换成空格。。
+--走在四季
+阅读排行榜
+1. jquery.validate.js表单验证(30402)
+2. js替换字符串中所有指定的字符(26297)
+3. jquery.validation.js 表单验证(15672)
+4. C#画圆 GDI+(10605)
+5. js判断字段是否为空 isNull(9694)
+评论排行榜
+1. C#调用局域网中POS打印机(2)
+2. js替换字符串中所有指定的字符(2)
+3. jquery.validate.js表单验证(2)
+4. jquery.validation.js 表单验证(2)
+5. js判断字段是否为空 isNull(1)
+推荐排行榜
+1. WinForm-SuspendLayout、ResumeLayout、PerformLayou——转载(5)
+2. jquery.validate.js表单验证(4)
+3. jquery.validation.js 表单验证(2)
+4. 在IE中MVC控制器中返回JSON格式的数据时提示下载(2)
+5. wsdl文件结构分析——转载(1)
+Copyright ©2017 SunRain117

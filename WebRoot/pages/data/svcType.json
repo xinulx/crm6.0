@@ -1,0 +1,7 @@
+[
+  { "id": "A", "text": "SERVICE" },
+  { "id": "SERVLET", "text": "SERVLET" },
+  { "id": "HTTP", "text": "HTTP" },
+  { "id": "WS", "text": "WS" },
+  { "id": "EXC", "text": "EXC" }
+]

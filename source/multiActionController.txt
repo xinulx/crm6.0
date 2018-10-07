@@ -1,0 +1,501 @@
+1、 MultiActionController如何将不同的请求映射不同的请求的功能处理方法呢？
+
+Spring Web MVC提供了MethodNameResolver（方法名解析器）用于解析当前请求到需要执行的功能处理方法的方法名。默认使用InternalPathMethodNameResolver实现类，另外还提供了ParameterMethodNameResolver和PropertiesMethodNameResolver，当然我们也可以自己来实现，稍候我们仔细研究下它们是如何工作的。
+
+2、那我们的功能处理方法应该怎么写呢？
+
+public (ModelAndView | Map | String | void) actionName(HttpServletRequest request, HttpServletResponse response, [,HttpSession session] [,AnyObject]);
+
+哦，原来如此，我们只需要按照如上格式写我们的功能处理方法即可；此处需要注意一下几点：
+
+1、返回值：即模型和视图部分；
+
+ModelAndView：模型和视图部分，之前已经见过了；
+
+Map：只返回模型数据，逻辑视图名会根据RequestToViewNameTranslator实现类来计算，稍候讨论；
+
+String：只返回逻辑视图名；
+
+void：表示该功能方法直接写出response响应（如果其他返回值类型（如Map）返回null则和void进行相同的处理）；
+
+2、actionName：功能方法名字；由methodNameResolver根据请求信息解析功能方法名，通过反射调用；
+
+3、形参列表：顺序固定，“[]”表示可选，我们来看看几个示例吧：
+
+//表示到新增页面
+
+public ModelAndView toAdd(HttpServletRequest request, HttpServletResponse response);
+
+//表示新增表单提交，在最后可以带着命令对象
+
+public ModelAndView add(HttpServletRequest request, HttpServletResponse response, UserModel user);
+
+//列表，但只返回模型数据，视图名会通过RequestToViewNameTranslator实现来计算
+
+public Map list(HttpServletRequest request, HttpServletResponse response);
+
+//文件下载，返回值类型为void，表示该功能方法直接写响应
+
+public void fileDownload(HttpServletRequest request, HttpServletResponse response)
+
+//第三个参数可以是session
+
+public ModelAndView sessionWith(HttpServletRequest request, HttpServletResponse response, HttpSession session);
+
+//如果第三个参数是session，那么第四个可以是命令对象，顺序必须是如下顺序
+
+public void sessionAndCommandWith(HttpServletRequest request, HttpServletResponse response, HttpSession session, UserModel user)
+
+4、异常处理方法，MultiActionController提供了简单的异常处理，即在请求的功能处理过程中遇到异常会交给异常处理方法进行处理，式如下所示：
+
+public ModelAndView anyMeaningfulName(HttpServletRequest request, HttpServletResponse response, ExceptionClass exception)
+
+MultiActionController会使用最接近的异常类型来匹配对应的异常处理方法，示例如下所示：
+
+//处理PayException
+
+public ModelAndView processPayException(HttpServletRequest request, HttpServletResponse response, PayException ex)
+
+//处理Exception
+
+public ModelAndView processException(HttpServletRequest request, HttpServletResponse response, Exception ex)
+
+4.15.3 MultiActionController类实现
+类定义：public class MultiActionController extends AbstractController implements LastModified ，继承了AbstractController，并实现了LastModified接口，默认返回-1；
+
+核心属性：
+
+delegate：功能处理的委托对象，即我们要调用请求处理方法所在的对象，默认是this；
+
+methodNameResolver：功能处理方法名解析器，即根据请求信息来解析需要执行的delegate的功能处理方法的方法名。
+
+核心方法：
+
+Java代码  复制代码 收藏代码
+//判断方法是否是功能处理方法
+private boolean isHandlerMethod(Method method) {
+//得到方法返回值类型
+Class returnType = method.getReturnType();
+//返回值类型必须是ModelAndView、Map、String、void中的一种，否则不是功能处理方法
+if (ModelAndView.class.equals(returnType) || Map.class.equals(returnType) || String.class.equals(returnType) ||
+void.class.equals(returnType)) {
+Class[] parameterTypes = method.getParameterTypes();
+//功能处理方法参数个数必须>=2，且第一个是HttpServletRequest类型、第二个是HttpServletResponse
+//且不能Controller接口的handleRequest(HttpServletRequest request, HttpServletResponse response)，这个方法是由系统调用
+return (parameterTypes.length >= 2 &&
+HttpServletRequest.class.equals(parameterTypes[0]) &&
+HttpServletResponse.class.equals(parameterTypes[1]) &&
+!("handleRequest".equals(method.getName()) && parameterTypes.length == 2));
+}
+return false;
+}
+//判断方法是否是功能处理方法private boolean isHandlerMethod(Method method) {    //得到方法返回值类型	Class returnType = method.getReturnType();    //返回值类型必须是ModelAndView、Map、String、void中的一种，否则不是功能处理方法	if (ModelAndView.class.equals(returnType) || Map.class.equals(returnType) || String.class.equals(returnType) ||			void.class.equals(returnType)) {		Class[] parameterTypes = method.getParameterTypes();        //功能处理方法参数个数必须>=2，且第一个是HttpServletRequest类型、第二个是HttpServletResponse        //且不能Controller接口的handleRequest(HttpServletRequest request, HttpServletResponse response)，这个方法是由系统调用		return (parameterTypes.length >= 2 &&				HttpServletRequest.class.equals(parameterTypes[0]) &&				HttpServletResponse.class.equals(parameterTypes[1]) &&				!("handleRequest".equals(method.getName()) && parameterTypes.length == 2));	}	return false;}
+Java代码  复制代码 收藏代码
+//是否是异常处理方法
+private boolean isExceptionHandlerMethod(Method method) {
+//异常处理方法必须是功能处理方法 且 参数长度为3、第三个参数类型是Throwable子类
+return (isHandlerMethod(method) &&
+method.getParameterTypes().length == 3 &&
+Throwable.class.isAssignableFrom(method.getParameterTypes()[2]));
+}
+//是否是异常处理方法private boolean isExceptionHandlerMethod(Method method) {    //异常处理方法必须是功能处理方法 且 参数长度为3、第三个参数类型是Throwable子类	return (isHandlerMethod(method) &&			method.getParameterTypes().length == 3 &&			Throwable.class.isAssignableFrom(method.getParameterTypes()[2]));}
+Java代码  复制代码 收藏代码
+private void registerHandlerMethods(Object delegate) {
+//缓存Map清空
+this.handlerMethodMap.clear();
+this.lastModifiedMethodMap.clear();
+this.exceptionHandlerMap.clear();
+//得到委托对象的所有public方法
+Method[] methods = delegate.getClass().getMethods();
+for (Method method : methods) {
+//验证是否是异常处理方法，如果是放入exceptionHandlerMap缓存map
+if (isExceptionHandlerMethod(method)) {
+registerExceptionHandlerMethod(method);
+}
+//验证是否是功能处理方法，如果是放入handlerMethodMap缓存map
+else if (isHandlerMethod(method)) {
+registerHandlerMethod(method);
+registerLastModifiedMethodIfExists(delegate, method);
+}
+}
+}
+private void registerHandlerMethods(Object delegate) {    //缓存Map清空	this.handlerMethodMap.clear();	this.lastModifiedMethodMap.clear();	this.exceptionHandlerMap.clear();    //得到委托对象的所有public方法	Method[] methods = delegate.getClass().getMethods();	for (Method method : methods) {        //验证是否是异常处理方法，如果是放入exceptionHandlerMap缓存map		if (isExceptionHandlerMethod(method)) {			registerExceptionHandlerMethod(method);		}        //验证是否是功能处理方法，如果是放入handlerMethodMap缓存map		else if (isHandlerMethod(method)) {			registerHandlerMethod(method);			registerLastModifiedMethodIfExists(delegate, method);		}	}}
+Java代码  复制代码 收藏代码
+protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+throws Exception {
+try {
+//1、使用methodNameResolver 方法名解析器根据请求解析到要执行的功能方法的方法名
+String methodName = this.methodNameResolver.getHandlerMethodName(request);
+//2、调用功能方法（通过反射调用，此处就粘贴代码了）
+return invokeNamedMethod(methodName, request, response);
+}
+catch (NoSuchRequestHandlingMethodException ex) {
+return handleNoSuchRequestHandlingMethod(ex, request, response);
+}
+}
+protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)		throws Exception {	try {        //1、使用methodNameResolver 方法名解析器根据请求解析到要执行的功能方法的方法名		String methodName = this.methodNameResolver.getHandlerMethodName(request);        //2、调用功能方法（通过反射调用，此处就粘贴代码了）		return invokeNamedMethod(methodName, request, response);	}	catch (NoSuchRequestHandlingMethodException ex) {		return handleNoSuchRequestHandlingMethod(ex, request, response);	}}
+接下来，我们看一下MultiActionController如何使用MethodNameResolver来解析请求到功能处理方法的方法名。
+
+4.15.4 MethodNameResolver
+1、InternalPathMethodNameResolver：MultiActionController的默认实现，提供从请求URL路径解析功能方法的方法名，从请求的最后一个路径（/）开始，并忽略扩展名；如请求URL是“/user/list.html”，则解析的功能处理方法名为“list”，即调用list方法。该解析器还可以指定前缀和后缀，通过prefix和suffix属性，如指定prefix=”test_”,则功能方法名将变为test_list；
+
+2、ParameterMethodNameResolver：提供从请求参数解析功能处理方法的方法名，并按照如下顺序进行解析：
+
+（1、 methodParamNames：根据请求的参数名解析功能方法名（功能方法名和参数名同名）；
+
+Java代码  复制代码 收藏代码
+<property name="methodParamNames" value="list,create,update"/>
+<property name="methodParamNames" value="list,create,update"/>       
+如上配置时，如果请求中含有参数名list、create、update时，则功能处理方法名为list、create、update，这种方式的可以在当一个表单有多个提交按钮时使用，不同的提交按钮名字不一样即可。
+
+ParameterMethodNameResolver也考虑到图片提交按钮提交问题：
+
+<inputtype="image" name="list"> 和submit类似可以提交表单，单击该图片后会发送两个参数“list.x=x轴坐标”和“list.y=y轴坐标”（如提交后会变为list.x=7&list.y=5）；因此我们配置的参数名（如list）在会加上“.x”和 “.y”进行匹配。
+
+Java代码  复制代码 收藏代码
+for (String suffix : SUBMIT_IMAGE_SUFFIXES) {//SUBMIT_IMAGE_SUFFIXES {“.x”, “.y”}
+if (request.getParameter(name + suffix) != null) {// name是我们配置的methodParamNames
+return true;
+}
+}
+for (String suffix : SUBMIT_IMAGE_SUFFIXES)  {//SUBMIT_IMAGE_SUFFIXES {“.x”, “.y”}    if (request.getParameter(name + suffix) != null) {// name是我们配置的methodParamNames        return true;    }}
+（2、paramName：根据请求参数名的值解析功能方法名，默认的参数名是action，即请求的参数中含有“action=query”，则功能处理方法名为query；
+
+（3、logicalMappings：逻辑功能方法名到真实功能方法名映射，如下所示：
+
+Java代码  复制代码 收藏代码
+<property name="logicalMappings">
+<props>
+<prop key="doList">list</prop>
+</props>
+</property>
+       <property name="logicalMappings">           <props>               <prop key="doList">list</prop>           </props>       </property>
+即如果步骤1或2解析出逻辑功能方法名为doList（逻辑的），将会被重新映射为list功能方法名（真正执行的）。
+
+（4、defaultMethodName：默认的方法名，当以上策略失败时默认调用的方法名。
+
+3、PropertiesMethodNameResolver：提供自定义的从请求URL解析功能方法的方法名，使用一组用户自定义的模式到功能方法名的映射，映射使用Properties对象存放，具体配置示例如下：
+
+Java代码  复制代码 收藏代码
+<bean id="propertiesMethodNameResolver"
+class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+<property name="mappings">
+<props>
+<prop key="/create">create</prop>
+<prop key="/update">update</prop>
+<prop key="/delete">delete</prop>
+<prop key="/list">list</prop>
+<!-- 默认的行为 -->
+<prop key="/**">list</prop>
+</props>
+</property>
+</bean>
+<bean id="propertiesMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">    <property name="mappings">        <props>              <prop key="/create">create</prop>              <prop key="/update">update</prop>              <prop key="/delete">delete</prop>              <prop key="/list">list</prop>              <!-- 默认的行为 -->              <prop key="/**">list</prop>        </props>    </property></bean> 
+对于/create请求将调用create方法，Spring内部使用PathMatcher进行匹配（默认实现是AntPathMatcher）。
+
+4.15.5 RequestToViewNameTranslator
+用于直接将请求转换为逻辑视图名。默认实现为DefaultRequestToViewNameTranslator。
+
+1、DefaultRequestToViewNameTranslator：将请求URL转换为逻辑视图名，默认规则如下：
+
+http://localhost:9080/web上下文/list-------> 逻辑视图名为list
+
+http://localhost:9080/web上下文/list.html-------> 逻辑视图名为list(默认删除扩展名)
+
+http://localhost:9080/web上下文/user/list.html-------> 逻辑视图名为user/list
+
+4.15.6 示例
+（1、控制器UserController
+
+Java代码  复制代码 收藏代码
+package cn.javass.chapter4.web.controller;
+//省略import
+public class UserController extends MultiActionController {
+//用户服务类
+private UserService userService;
+//逻辑视图名 通过依赖注入方式注入，可配置
+private String createView;
+private String updateView;
+private String deleteView;
+private String listView;
+private String redirectToListView;
+//省略setter/getter
+public String create(HttpServletRequest request, HttpServletResponse response, UserModel user) {
+if("GET".equals(request.getMethod())) {
+//如果是get请求 我们转向 新增页面
+return getCreateView();
+}
+userService.create(user);
+//直接重定向到列表页面
+return getRedirectToListView();
+}
+public ModelAndView update(HttpServletRequest request, HttpServletResponse response, UserModel user) {
+if("GET".equals(request.getMethod())) {
+//如果是get请求 我们转向更新页面
+ModelAndView mv = new ModelAndView();
+//查询要更新的数据
+mv.addObject("command", userService.get(user.getUsername()));
+mv.setViewName(getUpdateView());
+return mv;
+}
+userService.update(user);
+//直接重定向到列表页面
+return new ModelAndView(getRedirectToListView());
+}
+public ModelAndView delete(HttpServletRequest request, HttpServletResponse response, UserModel user) {
+if("GET".equals(request.getMethod())) {
+//如果是get请求 我们转向删除页面
+ModelAndView mv = new ModelAndView();
+//查询要删除的数据
+mv.addObject("command", userService.get(user.getUsername()));
+mv.setViewName(getDeleteView());
+return mv;
+}
+userService.delete(user);
+//直接重定向到列表页面
+return new ModelAndView(getRedirectToListView());
+}
+public ModelAndView list(HttpServletRequest request, HttpServletResponse response) {
+ModelAndView mv = new ModelAndView();
+mv.addObject("userList", userService.list());
+mv.setViewName(getListView());
+return mv;
+}
+//如果使用委托方式，命令对象名称只能是command
+protected String getCommandName(Object command) {
+//命令对象的名字 默认command
+return "command";
+}
+}
+package cn.javass.chapter4.web.controller;//省略importpublic class UserController extends MultiActionController {    //用户服务类	private UserService userService;	//逻辑视图名 通过依赖注入方式注入，可配置	private String createView;	private String updateView;	private String deleteView;	private String listView;	private String redirectToListView;	//省略setter/getter	public String create(HttpServletRequest request, HttpServletResponse response, UserModel user) {		if("GET".equals(request.getMethod())) {			//如果是get请求 我们转向 新增页面			return getCreateView();		}		userService.create(user);		//直接重定向到列表页面		return getRedirectToListView();	}	public ModelAndView update(HttpServletRequest request, HttpServletResponse response, UserModel user) {		if("GET".equals(request.getMethod())) {			//如果是get请求 我们转向更新页面			ModelAndView mv = new ModelAndView();			//查询要更新的数据			mv.addObject("command", userService.get(user.getUsername()));			mv.setViewName(getUpdateView());			return mv;		}		userService.update(user);		//直接重定向到列表页面		return new ModelAndView(getRedirectToListView());	}		public ModelAndView delete(HttpServletRequest request, HttpServletResponse response, UserModel user) {		if("GET".equals(request.getMethod())) {			//如果是get请求 我们转向删除页面			ModelAndView mv = new ModelAndView();			//查询要删除的数据			mv.addObject("command", userService.get(user.getUsername()));			mv.setViewName(getDeleteView());			return mv;		}		userService.delete(user);		//直接重定向到列表页面		return new ModelAndView(getRedirectToListView());	}			public ModelAndView list(HttpServletRequest request, HttpServletResponse response) {		ModelAndView mv = new ModelAndView();		mv.addObject("userList", userService.list());		mv.setViewName(getListView());		return mv;	}		//如果使用委托方式，命令对象名称只能是command	protected String getCommandName(Object command) {		//命令对象的名字 默认command		return "command";	}}
+增删改：如果是GET请求方法，则表示到展示页面，POST请求方法表示真正的功能操作；
+
+getCommandName：表示是命令对象名字，默认command，对于委托对象实现方式无法改变，因此我们就使用默认的吧。
+
+
+（2、spring配置文件chapter4-servlet.xml
+
+Java代码  复制代码 收藏代码
+<bean id="userService" class="cn.javass.chapter4.service.UserService"/>
+<bean name="/user/**" class="cn.javass.chapter4.web.controller.UserController">
+<property name="userService" ref="userService"/>
+<property name="createView" value="user/create"/>
+<property name="updateView" value="user/update"/>
+<property name="deleteView" value="user/delete"/>
+<property name="listView" value="user/list"/>
+<property name="redirectToListView" value="redirect:/user/list"/>
+<!-- 使用PropertiesMethodNameResolver来解析功能处理方法名 -->
+<!--property name="methodNameResolver" ref="propertiesMethodNameResolver"/-->
+</bean>
+   <bean id="userService" class="cn.javass.chapter4.service.UserService"/>   <bean name="/user/**" class="cn.javass.chapter4.web.controller.UserController">       <property name="userService" ref="userService"/>       <property name="createView" value="user/create"/>       <property name="updateView" value="user/update"/>       <property name="deleteView" value="user/delete"/>       <property name="listView" value="user/list"/>       <property name="redirectToListView" value="redirect:/user/list"/>       <!-- 使用PropertiesMethodNameResolver来解析功能处理方法名 -->              <!--property name="methodNameResolver" ref="propertiesMethodNameResolver"/-->   </bean>
+userService：用户服务类，实现业务逻辑；
+
+依赖注入：对于逻辑视图页面通过依赖注入方式注入，redirectToListView表示增删改成功后重定向的页面，防止重复表单提交；
+
+默认使用InternalPathMethodNameResolver解析请求URL到功能方法名。
+
+
+（3、视图页面
+
+（3.1、list页面（WEB-INF/jsp/user/list.jsp）
+
+Java代码  复制代码 收藏代码
+<a href="${pageContext.request.contextPath}/user/create">用户新增</a><br/>
+<table border="1" width="50%">
+<tr>
+<th>用户名</th>
+<th>真实姓名</th>
+<th>操作</th>
+</tr>
+<c:forEach items="${userList}" var="user">
+<tr>
+<td>${user.username }</td>
+<td>${user.realname }</td>
+<td>
+<a href="${pageContext.request.contextPath}/user/update?username=${user.username}">更新</a>
+|
+<a href="${pageContext.request.contextPath}/user/delete?username=${user.username}">删除</a>
+</td>
+</tr>
+</c:forEach>
+</table>
+<a href="${pageContext.request.contextPath}/user/create">用户新增</a><br/><table border="1" width="50%">   <tr>      <th>用户名</th>      <th>真实姓名</th>      <th>操作</th>   </tr>    <c:forEach items="${userList}" var="user">   <tr>      <td>${user.username }</td>      <td>${user.realname }</td>      <td>          <a href="${pageContext.request.contextPath}/user/update?username=${user.username}">更新</a>          |          <a href="${pageContext.request.contextPath}/user/delete?username=${user.username}">删除</a>      </td>   </tr>   </c:forEach>   </table>
+（3.2、update页面（WEB-INF/jsp/user/update.jsp）
+
+Java代码  复制代码 收藏代码
+<form action="${pageContext.request.contextPath}/user/update" method="post">
+用户名： <input type="text" name="username" value="${command.username}"/><br/>
+真实姓名：<input type="text" name="realname" value="${command.realname}"/><br/>
+<input type="submit" value="更新"/>
+</form>
+<form action="${pageContext.request.contextPath}/user/update" method="post">用户名： <input type="text" name="username" value="${command.username}"/><br/>真实姓名：<input type="text" name="realname" value="${command.realname}"/><br/><input type="submit" value="更新"/></form>
+（4、测试：
+
+默认的InternalPathMethodNameResolver将进行如下解析：
+
+http://localhost:9080/springmvc-chapter4/user/list————>list方法名；
+
+http://localhost:9080/springmvc-chapter4/user/create————>create方法名；
+
+http://localhost:9080/springmvc-chapter4/user/update————>update功能处理方法名；
+
+http://localhost:9080/springmvc-chapter4/user/delete————>delete功能处理方法名。
+
+
+我们可以将默认的InternalPathMethodNameResolver改为PropertiesMethodNameResolver：
+
+Java代码  复制代码 收藏代码
+<bean id="propertiesMethodNameResolver"
+class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+<property name="mappings">
+<props>
+<prop key="/create">create</prop>
+<prop key="/update">update</prop>
+<prop key="/delete">delete</prop>
+<prop key="/list">list</prop>
+<prop key="/**">list</prop><!-- 默认的行为 -->
+</props>
+</property>
+</bean>
+<bean name="/user/**" class="cn.javass.chapter4.web.controller.UserController">
+<!—省略其他配置，详见配置文件-->
+<!-- 使用PropertiesMethodNameResolver来解析功能处理方法名 -->
+<property name="methodNameResolver" ref="propertiesMethodNameResolver"/>
+</bean>
+<bean id="propertiesMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">    <property name="mappings">        <props>              <prop key="/create">create</prop>              <prop key="/update">update</prop>              <prop key="/delete">delete</prop>              <prop key="/list">list</prop>              <prop key="/**">list</prop><!-- 默认的行为 -->          </props>    </property></bean>   <bean name="/user/**" class="cn.javass.chapter4.web.controller.UserController">       <!—省略其他配置，详见配置文件-->       <!-- 使用PropertiesMethodNameResolver来解析功能处理方法名 -->              <property name="methodNameResolver" ref="propertiesMethodNameResolver"/></bean> 
+/**表示默认解析到list功能处理方法。
+
+如上配置方式可以很好的工作，但必须继承MultiActionController，Spring Web MVC提供给我们无需继承MultiActionController实现方式，即使有委托对象方式，继续往下看吧。
+
+4.15.7、委托方式实现
+（1、控制器UserDelegate
+
+将UserController复制一份，改名为UserDelegate，并把继承MultiActionController去掉即可，其他无需改变。
+
+（2、spring配置文件chapter4-servlet.xml
+
+Java代码  复制代码 收藏代码
+<!—委托对象-->
+<bean id="userDelegate" class="cn.javass.chapter4.web.controller.UserDelegate">
+<property name="userService" ref="userService"/>
+<property name="createView" value="user2/create"/>
+<property name="updateView" value="user2/update"/>
+<property name="deleteView" value="user2/delete"/>
+<property name="listView" value="user2/list"/>
+<property name="redirectToListView" value="redirect:/user2/list"/>
+</bean>
+<!—控制器对象-->
+<bean name="/user2/**"
+class="org.springframework.web.servlet.mvc.multiaction.MultiActionController">
+<property name="delegate" ref="userDelegate"/>
+<property name="methodNameResolver" ref="parameterMethodNameResolver"/>
+</bean>
+<!—委托对象--><bean id="userDelegate" class="cn.javass.chapter4.web.controller.UserDelegate">   <property name="userService" ref="userService"/>   <property name="createView" value="user2/create"/>   <property name="updateView" value="user2/update"/>   <property name="deleteView" value="user2/delete"/>   <property name="listView" value="user2/list"/>   <property name="redirectToListView" value="redirect:/user2/list"/></bean><!—控制器对象--><bean name="/user2/**" class="org.springframework.web.servlet.mvc.multiaction.MultiActionController"><property name="delegate" ref="userDelegate"/>    <property name="methodNameResolver" ref="parameterMethodNameResolver"/></bean>
+delegate：控制器对象通过delegate属性指定委托对象，即实际调用delegate委托对象的功能方法。
+
+methodNameResolver：此处我们使用ParameterMethodNameResolver解析器；
+
+Java代码  复制代码 收藏代码
+<!—ParameterMethodNameResolver -->
+<bean id="parameterMethodNameResolver"
+class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+<!-- 1、根据请求参数名解析功能方法名 -->
+<property name="methodParamNames" value="create,update,delete"/>
+<!-- 2、根据请求参数名的值解析功能方法名 -->
+<property name="paramName" value="action"/>
+<!-- 3、逻辑方法名到真实方法名的映射 -->
+<property name="logicalMappings">
+<props>
+<prop key="doList">list</prop>
+</props>
+</property>
+<!—4、默认执行的功能处理方法 -->
+<property name="defaultMethodName" value="list"/>
+</bean>
+<!—ParameterMethodNameResolver --><bean id="parameterMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver"><!-- 1、根据请求参数名解析功能方法名 -->    <property name="methodParamNames" value="create,update,delete"/>    <!-- 2、根据请求参数名的值解析功能方法名 -->    <property name="paramName" value="action"/><!-- 3、逻辑方法名到真实方法名的映射 -->    <property name="logicalMappings">       <props>           <prop key="doList">list</prop>       </props>    </property>    <!—4、默认执行的功能处理方法 -->    <property name="defaultMethodName" value="list"/></bean>   
+1、methodParamNames：create,update,delete，当请求中有参数名为这三个的将被映射为功能方法名，如“<input type="submit" name="create" value="新增"/>”提交后解析得到的功能方法名为create;
+
+2、paramName：当请求中有参数名为action，则将值映射为功能方法名，如“<input type="hidden" name="action" value="delete"/>”，提交后解析得到的功能方法名为delete；
+
+3、logicalMappings：逻辑功能方法名到真实功能方法名的映射，如：
+
+http://localhost:9080/springmvc-chapter4/user2?action=doList；
+
+首先请求参数“action=doList”，则第二步解析得到逻辑功能方法名为doList；
+
+本步骤会把doList再转换为真实的功能方法名list。
+
+4、defaultMethodName：以上步骤如果没有解析到功能处理方法名，默认执行的方法名。
+
+
+（3、视图页面
+
+（3.1、list页面（WEB-INF/jsp/user2/list.jsp）
+
+Java代码  复制代码 收藏代码
+<a href="${pageContext.request.contextPath}/user2?action=create">用户新增</a><br/>
+<table border="1" width="50%">
+<tr>
+<th>用户名</th>
+<th>真实姓名</th>
+<th>操作</th>
+</tr>
+<c:forEach items="${userList}" var="user">
+<tr>
+<td>${user.username }</td>
+<td>${user.realname }</td>
+<td>
+<a href="${pageContext.request.contextPath}/user2?action=update&username=${user.username}">更新</a>
+|
+<a href="${pageContext.request.contextPath}/user2?action=delete&username=${user.username}">删除</a>
+</td>
+</tr>
+</c:forEach>
+</table>
+<a href="${pageContext.request.contextPath}/user2?action=create">用户新增</a><br/><table border="1" width="50%">   <tr>      <th>用户名</th>      <th>真实姓名</th>      <th>操作</th>   </tr>    <c:forEach items="${userList}" var="user">   <tr>      <td>${user.username }</td>      <td>${user.realname }</td>      <td>          <a href="${pageContext.request.contextPath}/user2?action=update&username=${user.username}">更新</a>          |          <a href="${pageContext.request.contextPath}/user2?action=delete&username=${user.username}">删除</a>      </td>   </tr>   </c:forEach>   </table> 
+（3.2、update页面（WEB-INF/jsp/user2/update.jsp）
+
+Java代码  复制代码 收藏代码
+<form action="${pageContext.request.contextPath}/user2" method="post">
+<input type="hidden" name="action" value="update"/>
+用户名： <input type="text" name="username" value="${command.username}"/><br/>
+真实姓名：<input type="text" name="realname" value="${command.realname}"/><br/>
+<input type="submit" value="更新"/>
+</form>
+<form action="${pageContext.request.contextPath}/user2" method="post"><input type="hidden" name="action" value="update"/>用户名： <input type="text" name="username" value="${command.username}"/><br/>真实姓名：<input type="text" name="realname" value="${command.realname}"/><br/><input type="submit" value="更新"/></form> 
+通过参数name="action" value="update"来指定要执行的功能方法名update。
+
+
+（3.3、create页面（WEB-INF/jsp/user2/create.jsp）
+
+Java代码  复制代码 收藏代码
+<form action="${pageContext.request.contextPath}/user2" method="post">
+用户名： <input type="text" name="username" value="${command.username}"/><br/>
+真实姓名：<input type="text" name="realname" value="${command.realname}"/><br/>
+<input type="submit" name="create" value="新增"/>
+</form>
+<form action="${pageContext.request.contextPath}/user2" method="post">用户名： <input type="text" name="username" value="${command.username}"/><br/>真实姓名：<input type="text" name="realname" value="${command.realname}"/><br/><input type="submit" name="create" value="新增"/></form> 
+通过参数name="create"来指定要执行的功能方法名create。
+
+（4、测试：
+
+使用ParameterMethodNameResolver将进行如下解析：
+
+http://localhost:9080/springmvc-chapter4/user2?create ————>create功能处理方法名（参数名映射）；
+
+http://localhost:9080/springmvc-chapter4/user2?action=create————>create功能处理方法名（参数值映射）；
+
+http://localhost:9080/springmvc-chapter4/user2?update ————>update功能处理方法名；
+
+http://localhost:9080/springmvc-chapter4/user2?action=update————>update功能处理方法名；
+
+http://localhost:9080/springmvc-chapter4/user2?delete ————>delete功能处理方法名；
+
+http://localhost:9080/springmvc-chapter4/user2?action=delete————>delete功能处理方法名；
+
+http://localhost:9080/springmvc-chapter4/user2?doList ————>通过logicalMappings解析为list功能处理方法。
+
+http://localhost:9080/springmvc-chapter4/user2?action=doList————>通过logicalMappings解析为list功能处理方法。
+
+
+http://localhost:9080/springmvc-chapter4/user2————>默认的功能处理方法名list（默认）。

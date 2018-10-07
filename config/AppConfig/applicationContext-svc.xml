@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="requestContextListener" class="com.mine.App.common.Base.RequestContextListenerImpl" />
+
+	<bean id="sqlClientTemplate" class="com.mine.svc.common.mybatis.SqlClientTemplate">
+		<constructor-arg ref="sqlSessionFactoryBean"/>
+	</bean>
+
+	<bean id="channelRequest" class="svc.SvcTestBean">
+		<property name="sqlClientTemplate" ref="sqlClientTemplate" />
+		<property name="contextListener" ref="requestContextListener" />
+	</bean>
+
+	<bean id="sVCPageQry" class="com.mine.svc.common.service.impl.SVCPageQryImpl" />
+
+	<bean id="commonLogger" class="com.mine.svc.common.service.impl.CommonLoggerImpl" />
+
+	<bean id="deptInfoOpr" class="com.mine.svc.usersvc.service.impl.DeptInfoOprImpl" />
+</beans>
+
+ 

@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>日志查询</title>
+    <meta name="keywords" content="首页菜单、日志">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <meta name="description" content="系统首页、菜单、导航、日志">
+    <meta name="author" content="wangshibao, email wangshibao@tydic.com">
+    <meta name="robots" content="index,follow">
+    <link rel="shortcut icon" type="image/ico" href="/favicon.ico"/> <!-- 添加 favicon icon -->
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <script src="js/scripts/boot.js" type="text/javascript"></script>
+    <link href="js/scripts/miniui/themes/bootstrap/skin.css" rel="stylesheet" type="text/css" />
+    <script type="application/javascript">
+        $(function(){
+            mini.parse();
+            mini.layout();
+            grid = mini.get("sysLogGrid");
+            grid.load();
+            grid2 = mini.get("servLogGrid");
+            grid2.load();
+            grid3 = mini.get("userLogGrid");
+            grid3.load();
+        });
+
+        function qryParamInfo (){
+            var data = grid.getSelected();
+            mini.showMessageBox({
+                title: "请求参数",
+                buttons: ["关闭"],
+                iconCls: "mini-messagebox-info",
+                html: data.param_content,
+                showModal: true,
+                callback: function(action){
+
+                }
+            });
+        }
+        function qryParamInfoJson (){
+            var data = grid2.getSelected();
+            mini.showMessageBox({
+                title: "请求参数",
+                buttons: ["关闭"],
+                iconCls: "mini-messagebox-info",
+                html: data.param_content,
+                showModal: true,
+                callback: function(action){
+
+                }
+            });
+        }
+        function qryExcInfo (){
+            var data = grid2.getSelected();
+            mini.showMessageBox({
+                showHeader: true,
+                title: "请求参数",
+                message: "异常信息",
+                buttons: ["确定"],
+                iconCls: "mini-messagebox-error",
+                html: data.remark,
+                callback: function(action){
+
+                }
+            });
+        }
+        function querySysRequestLog(flag){
+            if(flag == 0){
+                form = new mini.Form("#form");
+                var data = form.getData();
+                var startDateTime = mini.formatDate(data.startDateTime, "yyyy-MM-dd HH:mm:ss");
+                var endDateTime = mini.formatDate(data.endDateTime, "yyyy-MM-dd HH:mm:ss");
+                data.startDateTime = startDateTime == ''?null:startDateTime;
+                data.endDateTime = endDateTime == ''?null:endDateTime;
+                grid.load(data);
+            }else if(flag == 1){
+                form = new mini.Form("#form2");
+                var data = form.getData();
+                var startSvcTime = mini.formatDate(data.startSvcTime, "yyyy-MM-dd HH:mm:ss");
+                var endSvcTime = mini.formatDate(data.endSvcTime, "yyyy-MM-dd HH:mm:ss");
+                data.startSvcTime = startSvcTime == ''?null:startSvcTime;
+                data.endSvcTime = endSvcTime == ''?null:endSvcTime;
+                grid2.load(data);
+            }else if(flag == 2){
+                form = new mini.Form("#form3");
+                var data = form.getData();
+                var startLoginTime = mini.formatDate(data.startLoginTime, "yyyy-MM-dd HH:mm:ss");
+                var endLoginTime = mini.formatDate(data.endLoginTime, "yyyy-MM-dd HH:mm:ss");
+                data.startLoginTime = startLoginTime == ''?null:startLoginTime;
+                data.endLoginTime = endLoginTime== ''?null:endLoginTime;
+                grid3.load(data);
+            }else{
+                mini.showMessageBox({
+                    showHeader: true,
+                    title: "错误",
+                    message: "表单查询错误",
+                    buttons: ["确定"],
+                    iconCls: "mini-messagebox-error"
+                });
+            }
+        }
+        function reset(){
+            form.clear();
+        }
+    </script>
+</head>
+<body style="margin: 0;overflow: hidden;">
+<iframe src="pages/common/header.html" frameborder="0" width="100%" height="30" scrolling="no"></iframe>
+<div style="height: 100%;padding: 8px;position: relative;top:-5px;">
+    <div style="border: 1px solid #C2C4CB;">
+        <div id="mainTabs" class="mini-tabs" activeIndex="0" style="width:100%;height:auto;">
+            <div title="业务操作">
+                <form id="form">
+                    <table class="query_table">
+                        <tr>
+                            <td>
+                                <span>操作流水：</span>
+                            </td>
+                            <td>
+                                <input class="mini-textbox" id="logAccept" name="logAccept"  style="width:200px;" />
+                            </td>
+                            <td>
+                                <span>请求方式：</span>
+                            </td>
+                            <td>
+                                <input id="methodName" name="methodName" class="mini-combobox" style="width:200px;" textField="text" valueField="id"
+                                       emptyText="请选择..." url="pages/data/country.json" value=""
+                                       allowInput="false" showNullItem="false" nullItemText="请选择..."  />
+                            </td>
+                            <td>
+                                <span>服务名称：</span>
+                            </td>
+                            <td>
+                                <input class="mini-textbox" id="svcName" name="svcName" style="width:200px;" emptyText="action/method名称" />
+                            </td>
+                            <td>
+                                <a class="mini-button" onclick="querySysRequestLog(0)">&nbsp;&nbsp;&nbsp;查询&nbsp;&nbsp;&nbsp;</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>完成标识：</span>
+                            </td>
+                            <td>
+                                <input class="mini-textbox" id="remark" name="remark" style="width:200px;"  />
+                            </td>
+                            <td>
+                                <span>开始时间：</span>
+                            </td>
+                            <td>
+                                <input id="startDateTime" name="startDateTime" class="mini-datepicker" style="width:200px;" nullValue="null"
+                                       format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" showTime="true" showOkButton="true" showClearButton="true" />
+                            </td>
+                            <td>
+                                <span>结束时间：</span>
+                            </td>
+                            <td>
+                                <input id="endDateTime" name="endDateTime" class="mini-datepicker" style="width:200px;" nullValue="null"
+                                       format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" showTime="true" showOkButton="true" showClearButton="true" />
+                            </td>
+                            <td>
+                                <a class="mini-button" onclick="reset()">&nbsp;&nbsp;&nbsp;重置&nbsp;&nbsp;&nbsp;</a>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                <div id="sysLogGrid" class="mini-datagrid" style="width:100%;height:auto;"
+                     borderStyle="border:0;"
+                     url="systemAction.shtml?method=querySysLogInfoList&type=SYS_REQUEST_LOG"
+                     showFilterRow="false" allowCellSelect="true" allowCellEdit="true" multiSelect="true" showEmptyText="true" emptyText="<span style='color:red'>暂无数据！</span>"
+                     sizeList="[10,20,25,30]" pageSize="10">
+                    <div property="columns" class="table2excel">
+                        <div type="indexcolumn">序号</div>
+                        <div field="log_accept"   width="50"  headerAlign="center" align="center" allowSort="false">请求流水</div>
+                        <div field="login_no"     width="50"  headerAlign="center" align="center" allowSort="false">操作工号</div>
+                        <div field="req_url"      width="100" headerAlign="center" allowSort="false">请求地址</div>
+                        <div field="req_method"   width="20"  headerAlign="center" align="center" allowSort="false">请求方式</div>
+                        <div field="req_header"   width="75"  headerAlign="center" allowSort="false">请求头</div>
+                        <div field="svc_type"     width="30"  headerAlign="center" align="center" allowSort="false">服务类型</div>
+                        <div field="is_success"   width="30"  headerAlign="center" align="center" allowSort="false">请求状态</div>
+                        <div field="OP_CONTENT"   width="30"  headerAlign="center" align="center" allowSort="false">请求参数</div>
+                        <div field="CREATEDATE"   width="50"  headerAlign="center" align="center" allowSort="true" dateFormat="yyyy-MM-dd HH:mm:ss">操作时间</div>
+                        <div field="remark"       width="20"  headerAlign="center" align="center" allowSort="false">完成状态</div>
+                    </div>
+                </div>
+            </div>
+            <div title="服务请求">
+                <form id="form2">
+                    <table class="query_table">
+                        <tr>
+                            <td>
+                                <span>操作流水：</span>
+                            </td>
+                            <td>
+                                <input class="mini-textbox" id="oprAccept" name="oprAccept"  style="width:200px;" />
+                            </td>
+                            <td>
+                                <span>服务类型：</span>
+                            </td>
+                            <td>
+                                <input id="svcType" name="svcType" class="mini-combobox" style="width:200px;" textField="text" valueField="id"
+                                       emptyText="请选择..." url="pages/data/svcType.json" value=""
+                                       allowInput="false" showNullItem="false" nullItemText="请选择..."  />
+                            </td>
+                            <td>
+                                <span>服务名称：</span>
+                            </td>
+                            <td>
+                                <input class="mini-textbox" id="serviceName" name="serviceName" style="width:200px;" emptyText="serviceName名称" />
+                            </td>
+                            <td>
+                                <a class="mini-button" onclick="querySysRequestLog(1)">&nbsp;&nbsp;&nbsp;查询&nbsp;&nbsp;&nbsp;</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>完成标识：</span>
+                            </td>
+                            <td>
+                                <input class="mini-textbox" id="svcFlag" name="svcFlag" style="width:200px;"  />
+                            </td>
+                            <td>
+                                <span>开始时间：</span>
+                            </td>
+                            <td>
+                                <input id="startSvcTime" name="startSvcTime" class="mini-datepicker" style="width:200px;" nullValue="null"
+                                       format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" showTime="true" showOkButton="true" showClearButton="true" />
+                            </td>
+                            <td>
+                                <span>结束时间：</span>
+                            </td>
+                            <td>
+                                <input id="endSvcTime" name="endSvcTime" class="mini-datepicker" style="width:200px;" nullValue="null"
+                                       format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" showTime="true" showOkButton="true" showClearButton="true" />
+                            </td>
+                            <td>
+                                <a class="mini-button" onclick="reset()">&nbsp;&nbsp;&nbsp;重置&nbsp;&nbsp;&nbsp;</a>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                <div id="servLogGrid" class="mini-datagrid" style="width:100%;height:auto;"
+                     borderStyle="border:0;"
+                     url="systemAction.shtml?method=querySysLogInfoList&type=SERV_REQUEST_LOG"
+                     showFilterRow="false" allowCellSelect="true" allowCellEdit="true" multiSelect="true" showEmptyText="true" emptyText="<span style='color:red'>暂无数据！</span>"
+                     sizeList="[10,20,25,30]" pageSize="10">
+                    <div property="columns" class="table2excel">
+                        <div type="indexcolumn">序号</div>
+                        <div field="login_accept"   width="50"  headerAlign="center" align="center" allowSort="false">请求流水</div>
+                        <div field="login_no"     width="30"  headerAlign="center" align="center" allowSort="false">操作工号</div>
+                        <div field="log_serial_no"      width="50" headerAlign="center" allowSort="false">序列号</div>
+                        <div field="param_content"   width="20"  headerAlign="center" align="center" allowSort="false">参数</div>
+                        <div field="svc_type"   width="20"  headerAlign="center" allowSort="false">执行</div>
+                        <div field="remark"       width="20"  headerAlign="center" align="center" allowSort="false">描述</div>
+                        <div field="opr_code"     width="30"  headerAlign="center" align="center" allowSort="false">模块号码</div>
+                        <div field="is_success"   width="30"  headerAlign="center" align="center" allowSort="false">请求状态</div>
+                        <div field="opr_datetime"   width="30"    headerAlign="center" align="center" allowSort="true" dateFormat="yyyy-MM-dd HH:mm:ss">操作时间</div>
+                        <div field="OP_CONTENT"   width="20"  headerAlign="center" align="left" allowSort="true">详细参数</div>
+                    </div>
+                </div>
+            </div>
+            <div title="用户登录">
+                <form id="form3">
+                    <table class="query_table">
+                        <tr>
+                            <td>
+                                <span>用户名：</span>
+                            </td>
+                            <td>
+                                <input class="mini-textbox" id="userName" name="userName"  style="width:200px;" />
+                            </td>
+                            <td>
+                                <span>用户ID：</span>
+                            </td>
+                            <td>
+                                <input id="userId" name="userId" class="mini-textbox" style="width:200px;"  />
+                            </td>
+                            <td>
+                                <a class="mini-button" onclick="querySysRequestLog(2)">&nbsp;&nbsp;&nbsp;查询&nbsp;&nbsp;&nbsp;</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>开始时间：</span>
+                            </td>
+                            <td>
+                                <input id="startLoginTime" name="startLoginTime" class="mini-datepicker" style="width:200px;" nullValue="null"
+                                       format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" showTime="true" showOkButton="true" showClearButton="true" />
+                            </td>
+                            <td>
+                                <span>结束时间：</span>
+                            </td>
+                            <td>
+                                <input id="endLoginTime" name="endLoginTime" class="mini-datepicker" style="width:200px;" nullValue="null"
+                                       format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" showTime="true" showOkButton="true" showClearButton="true" />
+                            </td>
+                            <td>
+                                <a class="mini-button" onclick="reset()">&nbsp;&nbsp;&nbsp;重置&nbsp;&nbsp;&nbsp;</a>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                <div id="userLogGrid" class="mini-datagrid" style="width:100%;height:auto;"
+                     borderStyle="border:0;"
+                     url="systemAction.shtml?method=querySysLogInfoList&type=USER_REQUEST_LOG"
+                     showFilterRow="false" allowCellSelect="true" allowCellEdit="true" multiSelect="true" showEmptyText="true" emptyText="<span style='color:red'>暂无数据！</span>"
+                     sizeList="[10,20,25,30]" pageSize="10">
+                    <div property="columns" class="table2excel">
+                        <div type="indexcolumn">序号</div>
+                        <div field="USERID" headerAlign="center" align="center" allowSort="false">用户ID</div>
+                        <div field="USERNAME" headerAlign="center" align="center" allowSort="false">用户名</div>
+                        <div field="ROLEID" headerAlign="center" allowSort="false">角色ID</div>
+                        <div field="ROLENAME" headerAlign="center" align="center" allowSort="false">角色名称</div>
+                        <div field="ORGID" headerAlign="center" allowSort="false">机构ID</div>
+                        <div field="DEPTNO" headerAlign="center" align="center" allowSort="false">部门ID</div>
+                        <div field="DEPTNAME" headerAlign="center" align="center" allowSort="false">部门名称</div>
+                        <div field="LOGINDATE" headerAlign="center" align="center" allowSort="true">登录时间</div>
+                        <div field="LOGINNUM" headerAlign="center" align="center" allowSort="false">登录次数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

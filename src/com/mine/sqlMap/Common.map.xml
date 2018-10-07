@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mine.App.mapper.CommonMapper">
+	<!-- 用户菜单信息查询 -->
+	<select id="querySystemAllMenuForList" parameterType="map" resultType="java.util.HashMap">
+		SELECT 
+			S.RID,S.MENU_ID,S.MENU_NAME,S.MENU_PARENT_ID,S.MENU_TYPE,S.MENU_URL,S.MENU_LVL 
+		FROM SYS_MENU S
+			LEFT JOIN SYS_USER U ON U.USERID=S.CREATE_USER
+			LEFT JOIN SYS_EMP P ON P.EMPNO=S.CREATE_USER
+			WHERE S.VFLAG='0' 
+			AND S.MENU_TYPE NOT IN ('INDEX','PERSONAL','SYSTEM','LOGOUT','MESSAGE')
+			AND U.VFLAG='0' AND P.VFLAG='0'
+			ORDER BY S.MENU_ID ASC
+	</select>
+	
+	<!-- 查询当前菜单地址 -->
+	<select id="getCurrMenuUrl" parameterType="string" resultType="java.util.HashMap">
+		SELECT A.MENU_URL,A.MENU_NAME ,A.MENU_METHOD,
+		  (select MENU_NAME from sys_menu where MENU_ID = a.MENU_PARENT_ID) PARENT_MENU_NAME
+		FROM SYS_MENU A WHERE A.MENU_ID=#{menuId} AND A.VFLAG='0'
+	</select>
+	
+	<!-- 查询机构信息 -->
+	<select id="queryOrgInfoForList" parameterType="map" resultType="java.util.HashMap">
+		SELECT O.RID,O.ORGID,O.ORGNAME,O.CORPDEPT,O.LEVEL,O.VFLAG FROM sys_org O
+		WHERE O.VFLAG='0'
+		<if test="orgIdOrName!=null">AND ( ORGID=#{orgIdOrName} OR ORGNAME LIKE '%${orgIdOrName}%' )</if>
+		ORDER BY O.ORGID ASC
+	</select>
+
+	<select id="querySysLogInfoList" parameterType="map" resultType="java.util.HashMap">
+		select a.*,date_format(a.crt_date,'%Y-%m-%d %H:%i:%s') CREATEDATE,
+		<![CDATA[
+        ('<a href="javascript:qryParamInfo()">详情</a>') OP_CONTENT
+        ]]>
+		from sys_request_log a
+		where 1 = 1
+		<if test="logAccept != null and logAccept != ''">
+			and a.log_accept = #{logAccept}
+		</if>
+		<if test="methodName != null and methodName != ''">
+			and a.req_method = #{methodName}
+		</if>
+		<if test="remark != null and remark != ''">
+			and (a.is_success = #{remark} or a.remark = #{remark})
+		</if>
+		<if test="svcName != null and svcName != ''">
+			and a.req_url like concat('%',concat(#{svcName},'%'))
+		</if>
+		<if test="startDateTime != null and startDateTime != '' and startDateTime != 'null'">
+			and a.crt_date >= str_to_date(#{startDateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="endDateTime != null and endDateTime != '' and endDateTime != 'null'">
+			and a.crt_date &lt;= str_to_date(#{endDateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="sortOrder != null and sortOrder != ''">
+			order by a.crt_date ${sortOrder}
+		</if>
+		LIMIT #{rownum},#{pageSize}
+	</select>
+
+    <select id="queryServLogInfoList" parameterType="map" resultType="java.util.HashMap">
+        SELECT
+            a.rid,
+            a.login_no,
+            a.login_accept,
+            a.log_serial_no,
+            a.param_content,
+            a.opr_code,
+            a.opr_name,
+            date_format(a.opr_date,'%Y-%m-%d %H:%i:%s') opr_datetime,
+            date_format(a.crt_date,'%Y-%m-%d %H:%i:%s') crt_datetime,
+            a.is_success,
+            a.remark,
+            a.svc_type,
+            (case is_success
+            when 'Y' then
+            <![CDATA[
+            ('<a href="javascript:qryParamInfoJson()">详情</a>')
+            ]]>
+            when 'N' then
+            <![CDATA[
+            ('<a href="javascript:qryParamInfoJson()">详情</a>&nbsp;<a style="color:red" href="javascript:qryExcInfo()">异常信息</a>')
+            ]]>
+            end) OP_CONTENT
+        FROM svc_log AS a
+        where 1=1
+		<if test="oprAccept != null and oprAccept != ''">
+			and a.login_accept = #{oprAccept}
+		</if>
+		<if test="svcType != null and svcType != ''">
+			and a.svc_type = #{svcType}
+		</if>
+		<if test="svcFlag != null and svcFlag != ''">
+			and a.is_success = #{svcFlag}
+		</if>
+		<if test="serviceName != null and serviceName != ''">
+			and a.param_content like concat('%',concat(#{serviceName},'%'))
+		</if>
+		<if test="startSvcTime != null and startSvcTime != '' and startSvcTime != 'null'">
+			and a.crt_date >= str_to_date(#{startSvcTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="endSvcTime != null and endSvcTime != '' and endSvcTime != 'null'">
+			and a.crt_date &lt;= str_to_date(#{endSvcTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="sortOrder != null and sortOrder != ''">
+			order by a.crt_date ${sortOrder}
+		</if>
+        LIMIT #{rownum},#{pageSize}
+    </select>
+
+    <select id="queryUserLogInfoList" parameterType="map" resultType="java.util.HashMap">
+        select a.* from sys_log a
+		where 1 = 1
+		<if test="userName != null and userName != ''">
+			and a.USERNAME = #{userName}
+		</if>
+		<if test="userId != null and userId != ''">
+			and a.USERID = #{userId}
+		</if>
+		<if test="startLoginTime != null and startLoginTime != '' and startLoginTime != 'null'">
+			and str_to_date(a.LOGINDATE,'%Y-%m-%d %H:%i:%s') >= str_to_date(#{startLoginTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="endLoginTime != null and endLoginTime != '' and endLoginTime != 'null'">
+			and str_to_date(a.LOGINDATE,'%Y-%m-%d %H:%i:%s') &lt;= str_to_date(#{endLoginTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="sortOrder != null and sortOrder != ''">
+			order by a.LOGINDATE ${sortOrder}
+		</if>
+        LIMIT #{rownum},#{pageSize}
+    </select>
+
+    <select id="querySysLogInfoListCnt" parameterType="map" resultType="java.lang.Integer">
+        select count(1) from sys_request_log a
+		where 1 = 1
+		<if test="logAccept != null and logAccept != ''">
+			and a.log_accept = #{logAccept}
+		</if>
+		<if test="methodName != null and methodName != ''">
+			and a.req_method = #{methodName}
+		</if>
+		<if test="remark != null and remark != ''">
+			and (a.is_success = #{remark} or a.remark = #{remark})
+		</if>
+		<if test="svcName != null and svcName != ''">
+			and a.req_url like concat('%',concat(#{svcName},'%'))
+		</if>
+		<if test="startDateTime != null and startDateTime != '' and startDateTime != 'null'">
+			and a.crt_date >= str_to_date(#{startDateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="endDateTime != null and endDateTime != '' and endDateTime != 'null'">
+			and a.crt_date &lt;= str_to_date(#{endDateTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+    </select>
+
+	<select id="queryServLogInfoListCnt" parameterType="map" resultType="java.lang.Integer">
+		select count(1) from svc_log a
+		where 1=1
+		<if test="oprAccept != null and oprAccept != ''">
+			and a.login_no = #{oprAccept}
+		</if>
+		<if test="svcType != null and svcType != ''">
+			and a.svc_type = #{svcType}
+		</if>
+		<if test="svcFlag != null and svcFlag != ''">
+			and a.is_success = #{svcFlag}
+		</if>
+		<if test="serviceName != null and serviceName != ''">
+			and a.param_content like concat('%',concat(#{serviceName},'%'))
+		</if>
+		<if test="startSvcTime != null and startSvcTime != '' and startSvcTime != 'null'">
+			and a.crt_date >= str_to_date(#{startSvcTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="endSvcTime != null and endSvcTime != '' and endSvcTime != 'null'">
+			and a.crt_date &lt;= str_to_date(#{endSvcTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+	</select>
+
+    <select id="queryUserLogInfoListCnt" parameterType="map" resultType="java.lang.Integer">
+        select count(1) from sys_log a
+		where 1 = 1
+		<if test="userName != null and userName != ''">
+			and a.USERNAME = #{userName}
+		</if>
+		<if test="userId != null and userId != ''">
+			and a.USERID = #{userId}
+		</if>
+		<if test="startLoginTime != null and startLoginTime != '' and startLoginTime != 'null'">
+			and str_to_date(a.LOGINDATE,'%Y-%m-%d %H:%i:%s') >= str_to_date(#{startLoginTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+		<if test="endLoginTime != null and endLoginTime != '' and endLoginTime != 'null'">
+			and str_to_date(a.LOGINDATE,'%Y-%m-%d %H:%i:%s') &lt;= str_to_date(#{endLoginTime},'%Y-%m-%d %H:%i:%s')
+		</if>
+    </select>
+	
+	<!-- 查询部门目录 -->
+	<select id="queryDeptInfoForList" parameterType="map" resultType="java.util.HashMap">
+		SELECT D.RID,D.DEPTNO,D.DEPTNAME,D.ORGID,D.MANAGERID,D.VFLAG FROM sys_dept D
+		WHERE D.VFLAG='0'
+		<if test="orgIdOrName!=null">AND ( D.DEPTNO=#{orgIdOrName} OR D.DEPTNAME LIKE '%${orgIdOrName}%' )</if>
+		ORDER BY D.DEPTNO ASC
+	</select>
+	
+	<!-- 查询当前部门上级目录 -->
+	<select id="queryOrgInfoByOrgId" parameterType="string" resultType="java.util.HashMap">
+		SELECT O.RID,O.ORGID,O.ORGNAME,O.CORPDEPT,O.LEVEL,O.VFLAG FROM sys_org O
+		WHERE O.VFLAG='0' AND O.ORGID=#{orgId}
+	</select>
+	
+	<!-- 查询系统配置的路入口标识 -->
+	<select id="getCurrLoginUrl" resultType="java.lang.String">
+		SELECT O.FLAG_NAME FROM sys_type O
+		WHERE O.V_FLAG='0'
+	</select>
+	
+	<!-- 查询机构信息数 -->
+	<select id="queryOrgListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(1) from sys_org o
+		where 1 = 1
+		<if test="orgName != null and orgName != ''">
+			and o.ORGNAME like concat('%' ,concat( #{orgName}, '%'))
+		</if>
+		<if test="orgId != null and orgId != ''">
+			and o.orgId = #{orgId}
+		</if>
+	</select>
+	
+	<!-- 查询机构信息 -->
+	<select id="queryOrgListPagenation" parameterType="java.util.Map" resultType="java.util.HashMap">
+		select o.*,
+			(select d.deptname from sys_dept d where d.deptno = o.corpdept) DEPT_NAME
+		from sys_org o
+		where 1 = 1
+		<if test="orgName != null and orgName != ''">
+			and o.ORGNAME like concat('%' ,concat( #{orgName}, '%'))
+		</if>
+		<if test="orgId != null and orgId != ''">
+			and o.orgId = #{orgId}
+		</if>
+		order by o.create_date desc limit #{startNum},#{pageSize}
+	</select>
+	
+	<select id="queryOrgEmpListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(1) from sys_emp e where e.orgid = #{orgId}
+	</select>
+	
+	<!-- 查询机构人员信息 -->
+	<select id="queryOrgEmpListPagenation" parameterType="java.util.Map" resultType="java.util.HashMap">
+		SELECT U.EMPNO,
+			   U.EMPNAME,
+			   U.AGE,
+			   U.GENDER,
+			   U.HIREDATE,
+			   U.DEPTNO,
+			   D.DEPTNAME,
+			   U.ORGID,
+			   O.ORGNAME,
+			   U.BIRTHDATE,
+			   U.CREATETIME,
+			   U.SALARY,
+			   U.EMPDESC,
+			   U.VFLAG FROM sys_emp U
+			   LEFT JOIN sys_dept D ON D.DEPTNO=U.DEPTNO AND D.VFLAG='0'
+			   LEFT JOIN sys_org O ON O.ORGID=U.ORGID AND O.VFLAG='0'
+		WHERE u.orgid = #{orgId} order by U.CREATETIME DESC
+	    LIMIT #{startNum},#{pageSize}
+	</select>
+
+	<insert id = "addProblem" parameterType="map">
+		INSERT  into sys_problem (
+			problem_desc,
+			createuser,
+			createdate
+		)VALUES (
+			#{remarks},
+			#{userId},
+			now()
+		)
+	</insert>
+
+    <select id="queryProblems" resultType="java.util.HashMap">
+        SELECT date_format(s.createdate,'%Y-%m-%d %H:%i:%s') createdate,s.problem_desc,s.createuser  from sys_problem s
+    </select>
+
+	<select id="qryRoleUser" resultType="java.util.HashMap">
+		select * from sys_emp s where s.DEPTNO = #{id}
+		AND S.EMPNO IN (
+			SELECT USERID FROM sys_user
+		)
+	</select>
+</mapper>

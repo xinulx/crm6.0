@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cmn-Hans">
+<head>
+    <title>综合管理平台</title>
+    <meta name="keywords" content="登陆">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="登录菜单">
+    <meta name="author" content="wangshibao, email wangshibao@tydic.com">
+    <meta name="robots" content="index,follow">
+    <link rel="shortcut icon" type="image/ico" href="/favicon.ico" /> <!-- 添加 favicon icon -->
+    <meta http-equiv="pragma" content="no-cache">
+ 	<meta http-equiv="cache-control" content="no-cache">
+ 	<meta http-equiv="expires" content="0"> 
+    <style type="text/css">body{width:100%;height:100%;margin:0;overflow:hidden;}</style>
+    <script src="js/scripts/boot.js" type="text/javascript"></script>
+    <script src="js/main/login/login.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="loginWindow" class="mini-window" title="<!--综合管理系统用户登录-->" style="width:100%;overflow: hidden;"
+   		showModal="false" showCloseButton="false" allowDrag="false">
+		<div style="background-image: url(images/office.png);height: 888px;position: relative;top:-30px">
+			<h1 align="center" style="padding-top: 280px;color: #0a8;">综合管理平台</h1>
+			<div id="loginForm" style="padding:15px;padding-top:10px;" align="center">
+				<table>
+					<tr>
+						<td style="width:60px;color: #0a8;">帐号：</td>
+						<td>
+							<input id="username" name="username" onvalidation="login.onUserNameValidation" class="mini-textbox"
+                                   value="00000284" maxlength="8" required="true" style="width:220px;"/>
+						</td>
+					</tr>
+					<tr>
+						<td style="width:60px;color: #0a8;">密码：</td>
+						<td>
+							<input id="pwd" name="pwd" onvalidation="login.onPwdValidation" class="mini-password"
+                                   maxlength="6" value="123456" required="true" style="width:220px;" onenter="login.onLoginClick"/>
+						</td>
+                        <td>
+                            <a href="javascript:login.toModiPwd()" style="color: #F60;font-weight: bold;" onclick="toModiPwd" >忘记密码?</a>
+                        </td>
+					</tr>
+					<tr>
+						<td></td>
+						<td style="padding-top:5px;">
+							<a onclick="login.onLoginClick" class="mini-button" style="width:105px;color: #0a8;font-weight: bold;">登录</a>
+							<a onclick="login.onResetClick" class="mini-button" style="width:106px;color: #0a8;font-weight: bold;">重置</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div id="toModiPwd" class="mini-window" title="修改密码" style="width:500px;height:300px;"
+	    showMaxButton="true" showToolbar="false" showFooter="false" showModal="true" allowResize="true" allowDrag="true" showCloseButton="false">
+	    <div id="modiPwdForm" align="center">
+        	<table>
+	            <tr>
+	                <td style="width:60px;">帐号：</td>
+	                <td>
+	                    <input id="userId" name="userId" onvalidation="login.onUserNameValidation" class="mini-textbox" maxlength="8" required="true" style="width:150px;"/>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td style="width:60px;">原密码：</td>
+	                <td>
+	                    <input id="old_password" name="old_password" onvalidation="login.onPwdValidation" class="mini-password" maxlength="6" required="true" style="width:150px;"/>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td style="width:60px;">新密码：</td>
+	                <td>
+	                    <input id="password" name="password" onvalidation="login.onPwdValidation" class="mini-password" maxlength="6" required="true" style="width:150px;"/>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td style="width:60px;">确认密码：</td>
+	                <td>
+	                    <input id="final_password" name="final_password" onvalidation="login.onPwdValidation" class="mini-password" maxlength="6" required="true" style="width:150px;"/>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td style="width:60px;">验证码：</td>
+	                <td>
+	                    <input id="code" name="code" class="mini-textbox" maxlength="4" required="true" style="width:150px;" onenter="login.modiPwd"/>
+	                </td>
+	            </tr>
+	             <tr>
+	                <td></td>
+	                <td>
+	                    <!-- <img id="code" name="code" src="http://ws.webxml.com.cn/WebServices/ValidateCodeWebService.asmx/smallValidateImage?byString=022116" style="width:150px;"
+	                    	onclick="this.src='http://ws.webxml.com.cn/WebServices/ValidateCodeWebService.asmx/smallValidateImage?byString=022116&time='+new Date().getTime()"/> -->
+	                    <img id="codeImg" name="codeImg" src="loginAction.shtml?method=showCode" style="width:150px;"
+	                    	onclick="this.src='loginAction.shtml?method=showCode&time='+new Date().getTime()"/>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td style="padding-top:5px;" colspan="2">
+	                	<div align="center">
+		                    <a onclick="login.modiPwd" class="mini-button" style="width:60px;">确定</a>
+		                    <a onclick="login.onResetModiForm" class="mini-button" style="width:60px;">重置</a>
+		                    <a onclick="login.toLogin" class="mini-button" style="width:60px;">取消</a>
+	                    </div>
+	                </td>
+	            </tr>
+        	</table>
+    	</div>
+	</div>
+	<div style="position:absolute;margin-top: 850px;width: 100%">
+		<p align="center">CopyRight&copy;wanshibao working platform</p>
+	</div>
+</body>
+</html>

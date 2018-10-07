@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+        http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.2.xsd">
+
+    <!-- 启用spring mvc 注解-->
+    <mvc:annotation-driven/>
+    <!-- 自动扫描的包名 ，使Spring支持自动检测组件，如注解的Controller-->
+    <context:component-scan
+            base-package="com.mine.App.common,com.mine.App.mapper,com.mine.App.dao,com.mine.App.service"/>
+    <!-- 加载静态数据源 -->
+    <util:properties id="db" location="classpath:/AppConfig/db.properties"/>
+
+    <!-- 此方式也是读取静态配置文件的方式，只是在使用时格式为：${db.driver}格式，前缀可以为多个点点的名称 （x1.x2.x3.y）-->
+    <!-- <bean id="propertyConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">       
+    <property name="location" value="/WEB-INF/jdbc.properties"/>   -->
+
+    <!-- 初始化数据源对象 :DBCP连接池-->
+    <bean id="dbcpDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="#{db.driver}"/>
+        <property name="url" value="#{db.url}"/>
+        <property name="username" value="#{db.username}"/>
+        <property name="password" value="#{db.password}"/>
+        <property name="maxActive" value="#{db.maxActive}"/>
+        <property name="minIdle" value="#{db.minIdle}"/>
+        <property name="maxIdle" value="#{db.maxIdle}"/>
+        <property name="initialSize" value="#{db.initialSize}"/>
+        <property name="logAbandoned" value="#{db.logAbandoned}"/>
+        <property name="removeAbandoned" value="#{db.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="#{db.removeAbandonedTimeout}"/>
+        <property name="maxWait" value="#{db.maxWait}"/>
+        <property name="maxOpenPreparedStatements" value="#{db.maxOpenPreparedStatements}"/>
+        <property name="minEvictableIdleTimeMillis" value="#{db.minEvictableIdleTimeMillis}"/>
+        <property name="poolPreparedStatements" value="#{db.poolPreparedStatements}"/>
+        <property name="defaultAutoCommit" value="#{db.defaultAutoCommit}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="#{db.timeBetweenEvictionRunsMillis}"/>
+        <property name="numTestsPerEvictionRun" value="#{db.numTestsPerEvictionRun}"/>
+        <property name="validationQuery" value="#{db.validationQuery}"/>
+    </bean>
+
+    <!-- 配置sqlSessionFactoryBean：为sqlSessionFactoryBean指定dataSource 为sqlSessionFactoryBean指定sqlMap -->
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 注入数据源 -->
+        <property name="dataSource" ref="dbcpDataSource"/>
+        <!-- 自动取对应包中不包括包名的类名作为类型别名，多个包之间可以用逗号或分号分开 -->
+        <property name="typeAliasesPackage" value="com.mine.App.model"/>
+        <!--configLocation属性指定mybatis的主配置文件-->
+        <property name="configLocation" value="classpath:AppConfig/mybatis-config.xml"/>
+        <!-- 扫描该路径下的sqlmap.xml -->
+        <property name="mapperLocations" value="classpath:com/mine/sqlMap/**/*.xml"/>
+    </bean>
+
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBean"/>
+    </bean>
+    <!-- bean后处理器 -->
+    <bean id="beanPostProcessor" class="com.mine.App.common.beanPost.DaoPostProcessor"/>
+
+    <!-- 视图解析器:定义跳转的文件的前后缀 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value=""/>
+        <property name="suffix" value=".html"/>  <!--可为空,方便实现自已的依据扩展名来选择视图解释类的逻辑  -->
+    </bean>
+
+    <!-- 声明AOP方面组件 -->
+    <bean id="aopLogger" class="com.mine.App.common.aop.AopLogger"/>
+    <!-- 配置AOP -->
+    <aop:config>
+        <!-- 切点 -->
+        <aop:pointcut expression="execution(public * com.mine.App.service.*.*(..))" id="pointcut"/>
+        <!-- 测试对应的通知需要在指定的路径下制造方法或异常 -->
+        <!-- 切面 -->
+        <aop:aspect ref="aopLogger">
+            <!-- 前置 -->
+            <aop:before method="logger" pointcut="within(com.mine.App.service..*)"/>
+            <!-- 后置 -->
+            <aop:after-returning method="logger" pointcut="within(com.mine.App.controller..*)"/>
+            <!-- 最终 -->
+            <aop:after method="logger" pointcut="within(com.mine.App.controller..*)"/>
+            <!-- 环绕 -->
+            <aop:around method="aroundLogger" pointcut="within(com.mine.App.controller..*)"/>
+            <!-- 异常 -->
+            <aop:after-throwing method="exceptionLogger" throwing="e" arg-names="e"
+                                pointcut="within(com.mine.App.controller..*)"/>
+        </aop:aspect>
+    </aop:config>
+
+    <!--配置拦截器, 多个拦截器,顺序执行 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- 匹配的是url路径， 如果不配置或/**,将拦截所有的Controller -->
+            <mvc:mapping path="/**"/>
+            <mvc:mapping path="/*.html"/>
+            <mvc:mapping path="/*/*.html"/>
+            <mvc:mapping path="/*/*/*.html"/>
+            <bean class="com.mine.App.controller.login.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+        <!-- 当设置多个拦截器时，先按顺序调用preHandle方法，然后逆序调用每个拦截器的postHandle和afterCompletion方法 -->
+    </mvc:interceptors>
+
+    <!--声明事物配置 -->
+    <bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dbcpDataSource"/>
+    </bean>
+    <!-- XML配置事物范围及类型 -->
+    <tx:advice id="txAdvice" transaction-manager="dataSourceTransactionManager">
+        <tx:attributes>
+            <tx:method name="delete*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException"/>
+            <tx:method name="insert*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.RuntimeException"/>
+            <tx:method name="update*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.Exception"/>
+            <tx:method name="find*" propagation="SUPPORTS"/>
+            <tx:method name="get*" propagation="SUPPORTS"/>
+            <tx:method name="select*" propagation="SUPPORTS"/>
+            <tx:method name="query*" propagation="SUPPORTS"/>
+            <tx:method name="page*" propagation="SUPPORTS"/>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config proxy-target-class="true">
+        <!-- 事物控制在service层 -->
+        <aop:pointcut id="pc" expression="execution(public * com.mine.App.service.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut="within(com.mine.App.service..*)"/>
+        <aop:advisor pointcut-ref="pc" advice-ref="txAdvice"/>
+    </aop:config>
+
+    <!-- 开启AOP注解扫描 可与配置bean并存 或2者取1-->
+    <aop:aspectj-autoproxy expose-proxy="false" proxy-target-class="true"/>
+
+    <!-- 开启缓存注解 -->
+    <cache:annotation-driven/>
+
+    <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+        <property name="caches">
+            <set>
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="books"/>
+            </set>
+        </property>
+    </bean>
+</beans>

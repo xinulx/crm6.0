@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+	<bean class="com.mine.App.controller.InternalResourceViewResolverImpl"/>
+	<!-- 定时作业调度-->
+	<bean id="mainTask" class="com.mine.common.timerTask.MainTask">
+		<!-- 调度延迟 -->
+		<property name="initialDelay" value="1" />
+		<!-- 调度间隔 -->
+		<property name="period" value="1" />
+		<!-- 调度单位：1：天；   2：时  ； 3：分  ； 4：秒   ；5：毫秒 -->
+		<property name="unit" value="3" />
+		<property name="hour" value="12" />
+		<property name="minute" value="0" />
+	</bean>
+	<bean class="com.mine.common.timerTask.TaskListener">
+		<property name="mainTask" ref="mainTask" />
+	</bean>
+
+   	<!-- 登录模块 -->
+   	<bean id="loginAction" class="com.mine.App.controller.login.LoginAction">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+		<property name="viewName" value="login" />
+   	</bean>
+   	
+   	<!-- 公共模块 -->
+   	<bean id="commonAction" class="com.mine.App.controller.CommonAction">
+         <property name="methodNameResolver" ref="paraMethodResolver"/>
+         <property name="viewName" value="index" />
+   	</bean>
+   	
+   	<!-- 员工模块 -->
+   	<bean id="empAction" class="com.mine.App.controller.system.EmpAction">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+   	</bean>
+   	
+   	<!-- 菜单模块 -->
+   	<bean id="menuAction" class="com.mine.App.controller.system.MenuAction">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+   	</bean>
+   	
+   	<!-- 机构模块 -->
+   	<bean id="orgAction" class="com.mine.App.controller.system.OrgAction">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+   	</bean>
+
+	<!-- 机构模块 -->
+	<bean id="roleAction" class="com.mine.App.controller.system.RoleAction">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+	</bean>
+
+	<!-- 账户模块 -->
+	<bean id="accountController" class="com.mine.App.controller.system.AccountController">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+	</bean>
+
+	<!-- 客户信息 -->
+	<bean id="custAction" class="com.mine.App.controller.cust.CustAction">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+	</bean>
+
+	<!-- 图标模块 -->
+	<bean id="accessLogAction" class="com.mine.App.controller.echarts.pie.AccessLogAction">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+	</bean>
+</beans>
